@@ -1,0 +1,25 @@
+.vip-recharge-tip{width: 1180px;margin: 24px auto;}
+.vip-recharge-tip .top-baner{width: 100%;height:261px;text-align: center;margin-top: 90px;}
+.vip-recharge-tip .sc-baner{background: url("/app/static/img/icon/sucai-baner.jpg") no-repeat center;}
+.vip-recharge-tip .yc-baner{background: url("/app/static/img/icon/yuanc-baner.jpg") no-repeat center;}
+.vip-recharge-tip .ctne-baner{background: url("/app/static/img/icon/ctne-baner.jpg") no-repeat center;}
+.vip-recharge-tip .top-baner i{display: inline-block;background: url("/app/static/img/icon/vip_success_pic.png") no-repeat;width: 188px;height: 183px;margin-top: -70px;}
+.vip-recharge-tip .top-baner .yc-icon{background-position: 0 -217px;}
+.vip-recharge-tip .top-baner .sc-icon{background-position: 0 0;}
+.vip-recharge-tip .top-baner .bg-icon{background-position: 0 -432px;}
+.vip-recharge-tip .top-baner h3{text-align: center;font-size: 36px;color: #fff;line-height: 60px;}
+.vip-recharge-tip .top-baner p{text-align: center;font-size: 22px;color: #fff;line-height: 36px;}
+.vip-recharge-tip .top-baner p span{color: #f6ee38;}
+
+.vip-recharge-tip .to-find{width: 100%;height: 190px;background-color: #fff;padding-top: 30px;text-align: center;}
+.vip-recharge-tip .to-find a{text-decoration: none;}
+.vip-recharge-tip .to-find .tf-btn{width: 250px;height: 60px;margin: 0 auto 30px;background:url("/app/static/img/icon/tf-btns.png") no-repeat 0 0;display: block;
+    text-align: center;
+    color: #fff;
+    font-size: 24px;
+    line-height: 50px;
+}
+.vip-recharge-tip .to-find .tf-btn:hover{background-position: 0 -70px; line-height: 54px;}
+.vip-recharge-tip .to-find p{text-align: center;font-size: 16px;color: #999;line-height: 24px;}
+.vip-recharge-tip .to-find .check-record{font-size: 16px;color: #666;line-height: 24px;}
+.vip-recharge-tip .to-find .check-record:hover{color:#ff9409;text-decoration: underline;}

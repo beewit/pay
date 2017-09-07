@@ -1,0 +1,941 @@
+.main-qtPay-new {
+    width: 1200px;
+    margin: 0 auto;
+    height: auto
+}
+
+.main-qtPay-new * {
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box
+}
+
+.qtPayNew-login {
+    overflow: hidden;
+    padding-right: 26px;
+    height: 60px;
+    line-height: 60px;
+    font-size: 12px
+}
+
+.qtPayNew-login div {
+    color: #999999
+}
+
+.qtPayNew-login .login-info {
+    font-size: 14px;
+    color: #333333
+}
+
+.qtPayNew-login .login-info .info-icon {
+    display: inline-block;
+    width: 24px;
+    height: 24px;
+    vertical-align: -7px;
+    margin: 0 8px 0 2px
+}
+
+.qtPayNew-login .login-info.wechat .info-icon {
+    background: url("/app/static/img/icon/qt-paynew_v2.png") no-repeat 0 -12px
+}
+
+.qtPayNew-login .login-info.sina .info-icon {
+    background: url("/app/static/img/icon/qt-paynew_v2.png") no-repeat 0 -36px
+}
+
+.qtPayNew-login .login-info.qq .info-icon {
+    background: url("/app/static/img/icon/qt-paynew_v2.png") no-repeat 0 -60px
+}
+
+.qtPayNew-login .login-info .info-green {
+    color: #2ccc2d
+}
+
+.qtPayNew-login .login-info b {
+    font-weight: 700
+}
+
+.qtPayNew-type {
+    overflow: hidden;
+    height: 330px;
+    background-color: #fff;
+    padding: 24px 26px
+}
+
+.qtPayNew-type .type-left {
+    width: 520px
+}
+
+.qtPayNew-type .type-right {
+    width: 620px;
+    height: 280px
+}
+
+.qtPayNew-type .type-title {
+    font-size: 16px;
+    color: #666666;
+    font-weight: 700;
+    margin-bottom: 12px
+}
+
+.qtPayNew-type .type-vip .vip-item, .qtPayNew-type .type-price .price-item {
+    width: 140px;
+    height: 100px;
+    display: inline-block;
+    margin-right: 20px;
+    border: 1px solid #e5e5e5;
+    text-align: center;
+    position: relative
+}
+
+.qtPayNew-type .type-vip .vip-item.on:after, .qtPayNew-type .type-price .price-item.on:after {
+    position: absolute;
+    content: " ";
+    width: 28px;
+    height: 28px;
+    bottom: 0;
+    right: 0;
+    background: url("/app/static/img/icon/qt-paynew_v2.png") no-repeat
+}
+
+.qtPayNew-type .type-vip {
+    margin-bottom: 22px
+}
+
+.qtPayNew-type .type-vip .vip-item {
+    font-size: 14px;
+    color: #666666;
+    font-weight: 700
+}
+
+.qtPayNew-type .type-vip .vip-item .vip-icon {
+    display: block;
+    margin: 20px auto 16px;
+    height: 35px;
+    width: 48px;
+    background: url("/app/static/img/icon/qt-paynew_v2.png") no-repeat
+}
+
+.qtPayNew-type .type-vip .vip-item.isBg:hover, .qtPayNew-type .type-vip .vip-item.isBg.on {
+    color: #fff;
+    border: 1px solid transparent;
+    FILTER: progid: DXImageTransform . Microsoft . Gradient(gradientType = 1, startColorStr = #0f98ff, endColorStr = #1980ff);
+    background: -webkit-linear-gradient(bottom left, #0f98ff, #1980ff);
+    background: -moz-linear-gradient(bottom left, #0f98ff, #1980ff);
+    background: -ms-linear-gradient(bottom left, #0f98ff, #1980ff);
+    background: -o-linear-gradient(bottom left, #0f98ff, #1980ff);
+    background: linear-gradient(bottom left, #0f98ff, #1980ff)
+}
+
+.qtPayNew-type .type-vip .vip-item.isBg:hover .vip-icon, .qtPayNew-type .type-vip .vip-item.isBg.on .vip-icon {
+    background-position: 0 -336px
+}
+
+.qtPayNew-type .type-vip .vip-item.isBg.on:after {
+    background-position: 0 -280px
+}
+
+.qtPayNew-type .type-vip .vip-item.isBg .vip-icon {
+    background-position: 0 -371px
+}
+
+.qtPayNew-type .type-vip .vip-item.isYc:hover, .qtPayNew-type .type-vip .vip-item.isYc.on {
+    color: #fff;
+    border: 1px solid transparent;
+    FILTER: progid: DXImageTransform . Microsoft . Gradient(gradientType = 1, startColorStr = #17e66c, endColorStr = #10c55b);
+    background: -webkit-linear-gradient(bottom left, #17e66c, #10c55b);
+    background: -moz-linear-gradient(bottom left, #17e66c, #10c55b);
+    background: -ms-linear-gradient(bottom left, #17e66c, #10c55b);
+    background: -o-linear-gradient(bottom left, #17e66c, #10c55b);
+    background: linear-gradient(bottom left, #17e66c, #10c55b)
+}
+
+.qtPayNew-type .type-vip .vip-item.isYc:hover .vip-icon, .qtPayNew-type .type-vip .vip-item.isYc.on .vip-icon {
+    background-position: 0 -336px
+}
+
+.qtPayNew-type .type-vip .vip-item.isYc.on:after {
+    background-position: 0 -196px
+}
+
+.qtPayNew-type .type-vip .vip-item.isYc .vip-icon {
+    background-position: 0 -371px
+}
+
+.qtPayNew-type .type-vip .vip-item.isSc:hover, .qtPayNew-type .type-vip .vip-item.isSc.on {
+    color: #fff;
+    border: 1px solid transparent;
+    FILTER: progid: DXImageTransform . Microsoft . Gradient(gradientType = 1, startColorStr = #fda233, endColorStr = #fd8320);
+    background: -webkit-linear-gradient(bottom left, #fda233, #fd8320);
+    background: -moz-linear-gradient(bottom left, #fda233, #fd8320);
+    background: -ms-linear-gradient(bottom left, #fda233, #fd8320);
+    background: -o-linear-gradient(bottom left, #fda233, #fd8320);
+    background: linear-gradient(bottom left, #fda233, #fd8320)
+}
+
+.qtPayNew-type .type-vip .vip-item.isSc:hover .vip-icon, .qtPayNew-type .type-vip .vip-item.isSc.on .vip-icon {
+    background-position: 0 -336px
+}
+
+.qtPayNew-type .type-vip .vip-item.isSc.on:after {
+    background-position: 0 -224px
+}
+
+.qtPayNew-type .type-vip .vip-item.isSc .vip-icon {
+    background-position: 0 -406px
+}
+
+.qtPayNew-type .type-vip .vip-item.isBoth:hover, .qtPayNew-type .type-vip .vip-item.isBoth.on {
+    color: #fff;
+    border: 1px solid transparent;
+    FILTER: progid: DXImageTransform . Microsoft . Gradient(gradientType = 1, startColorStr = #ff4e00, endColorStr = #ff2c2c);
+    background: -webkit-linear-gradient(bottom left, #ff4e00, #ff2c2c);
+    background: -moz-linear-gradient(bottom left, #ff4e00, #ff2c2c);
+    background: -ms-linear-gradient(bottom left, #ff4e00, #ff2c2c);
+    background: -o-linear-gradient(bottom left, #ff4e00, #ff2c2c)
+}
+
+.qtPayNew-type .type-vip .vip-item.isBoth:hover .vip-icon, .qtPayNew-type .type-vip .vip-item.isBoth.on .vip-icon {
+    height: 32px;
+    width: 61px;
+    margin-bottom: 19px;
+    background-position: 0 -441px
+}
+
+.qtPayNew-type .type-vip .vip-item.isBoth:hover .both-alert, .qtPayNew-type .type-vip .vip-item.isBoth.on .both-alert {
+    display: none
+}
+
+.qtPayNew-type .type-vip .vip-item.isBoth.on:after {
+    background-position: 0 -84px
+}
+
+.qtPayNew-type .type-vip .vip-item.isBoth .vip-icon {
+    width: 65px;
+    background-position: 0 -473px
+}
+
+.qtPayNew-type .type-vip .vip-item.isBoth .both-alert {
+    position: absolute;
+    width: 36px;
+    height: 20px;
+    background-color: #ff6000;
+    color: #fff;
+    text-align: center;
+    line-height: 20px;
+    font-weight: normal;
+    top: -1px;
+    left: -1px
+}
+
+.qtPayNew-type .type-price .price-info {
+    display: block;
+    text-align: center;
+    padding: 25px 0 14px;
+    color: #333333;
+    font-size: 14px
+}
+
+.qtPayNew-type .type-price .price-info em {
+    font-size: 24px
+}
+
+.qtPayNew-type .type-price .price-deadline {
+    font-size: 12px;
+    color: #888888
+}
+
+.qtPayNew-type .type-price .both-alert {
+    position: absolute;
+    width: 60px;
+    height: 20px;
+    background-color: #ff6000;
+    color: #fff;
+    text-align: center;
+    line-height: 20px;
+    font-weight: normal;
+    font-size: 12px;
+    top: -1px;
+    left: -1px
+}
+
+.qtPayNew-type .type-price .price-item .on:after {
+    position: absolute;
+    content: " ";
+    width: 28px;
+    height: 28px;
+    bottom: 0;
+    right: 0;
+    background: url("/app/static/img/icon/qt-paynew_v2.png") no-repeat
+}
+
+.qtPayNew-type .type-price.isBg .price-item.on:after {
+    background-position: 0 -252px
+}
+
+.qtPayNew-type .type-price.isBg .price-item:hover, .qtPayNew-type .type-price.isBg .price-item.on {
+    border-color: #0f98ff
+}
+
+.qtPayNew-type .type-price.isBg .price-item:hover .price-info, .qtPayNew-type .type-price.isBg .price-item.on .price-info {
+    color: #0f98ff
+}
+
+.qtPayNew-type .type-price.isBg .price-item:hover .price-info em, .qtPayNew-type .type-price.isBg .price-item.on .price-info em {
+    color: #0f98ff
+}
+
+.qtPayNew-type .type-price.isBg .price-item:hover .price-deadline, .qtPayNew-type .type-price.isBg .price-item.on .price-deadline {
+    color: #666666
+}
+
+.qtPayNew-type .type-price.isYc .price-item.on:after {
+    background-position: 0 -168px
+}
+
+.qtPayNew-type .type-price.isYc .price-item:hover, .qtPayNew-type .type-price.isYc .price-item.on {
+    border-color: #52d553
+}
+
+.qtPayNew-type .type-price.isYc .price-item:hover .price-info, .qtPayNew-type .type-price.isYc .price-item.on .price-info {
+    color: #52d553
+}
+
+.qtPayNew-type .type-price.isYc .price-item:hover .price-info em, .qtPayNew-type .type-price.isYc .price-item.on .price-info em {
+    color: #52d553
+}
+
+.qtPayNew-type .type-price.isYc .price-item:hover .price-deadline, .qtPayNew-type .type-price.isYc .price-item.on .price-deadline {
+    color: #666666
+}
+
+.qtPayNew-type .type-price.isSc .price-item.on:after {
+    background-position: 0 -112px
+}
+
+.qtPayNew-type .type-price.isSc .price-item:hover, .qtPayNew-type .type-price.isSc .price-item.on {
+    border-color: #fba84c
+}
+
+.qtPayNew-type .type-price.isSc .price-item:hover .price-info, .qtPayNew-type .type-price.isSc .price-item.on .price-info {
+    color: #fba84c
+}
+
+.qtPayNew-type .type-price.isSc .price-item:hover .price-info em, .qtPayNew-type .type-price.isSc .price-item.on .price-info em {
+    color: #fba84c
+}
+
+.qtPayNew-type .type-price.isSc .price-item:hover .price-deadline, .qtPayNew-type .type-price.isSc .price-item.on .price-deadline {
+    color: #666666
+}
+
+.qtPayNew-type .type-price.isBoth .price-item.on:after {
+    background-position: 0 -140px
+}
+
+.qtPayNew-type .type-price.isBoth .price-item:hover, .qtPayNew-type .type-price.isBoth .price-item.on {
+    border-color: #ff2c2c
+}
+
+.qtPayNew-type .type-price.isBoth .price-item:hover .price-info, .qtPayNew-type .type-price.isBoth .price-item.on .price-info {
+    color: #ff2c2c
+}
+
+.qtPayNew-type .type-price.isBoth .price-item:hover .price-info em, .qtPayNew-type .type-price.isBoth .price-item.on .price-info em {
+    color: #ff2c2c
+}
+
+.qtPayNew-type .type-price.isBoth .price-item:hover .price-deadline, .qtPayNew-type .type-price.isBoth .price-item.on .price-deadline {
+    color: #666666
+}
+
+.qtPayNew-type .type-card {
+    overflow: hidden;
+    width: 100%;
+    height: 100%;
+    border: 1px solid;
+    position: relative
+}
+
+.qtPayNew-type .type-card:after {
+    position: absolute;
+    height: 97px;
+    width: 98px;
+    content: " ";
+    top: -1px;
+    left: -1px;
+    background: url("/app/static/img/icon/qt-paynew_v2.png") no-repeat
+}
+
+.qtPayNew-type .type-card .card-icon {
+    width: 138px;
+    height: 138px;
+    border: 1px solid;
+    border-radius: 50%;
+    position: relative;
+    margin: 43px 66px 26px 79px
+}
+
+.qtPayNew-type .type-card .card-icon:after {
+    position: absolute;
+    content: " ";
+    top: 50%;
+    left: 50%;
+    background: url("/app/static/img/icon/qt-paynew_v2.png") no-repeat
+}
+
+.qtPayNew-type .type-card .card-price-info {
+    text-align: center;
+    font-size: 14px;
+    padding-left: 20px;
+    line-height: 26px
+}
+
+.qtPayNew-type .type-card .card-price-info em {
+    vertical-align: sub;
+    font-size: 28px;
+    font-weight: 700
+}
+
+.qtPayNew-type .type-card .card-info {
+    margin-top: 45px
+}
+
+.qtPayNew-type .type-card .card-info dt {
+    font-size: 18px;
+    font-weight: 700;
+    color: #666666
+}
+
+.qtPayNew-type .type-card .card-info dd {
+    margin-top: 20px;
+    padding-left: 28px;
+    font-size: 14px;
+    color: #888888;
+    position: relative
+}
+
+.qtPayNew-type .type-card .card-info dd em {
+    font-weight: 700;
+    color: #888888
+}
+
+.qtPayNew-type .type-card .card-info dd:after {
+    position: absolute;
+    width: 14px;
+    height: 12px;
+    top: 4px;
+    left: 0;
+    content: " ";
+    background: url("/app/static/img/icon/qt-paynew_v2.png") no-repeat 0 0
+}
+
+.qtPayNew-type .type-card .card-info dd.info-alert {
+    font-size: 12px;
+    margin-top: 12px;
+    color: #a8a8a8
+}
+
+.qtPayNew-type .type-card .card-info dd.info-alert:after {
+    background: transparent
+}
+
+.qtPayNew-type .type-card.isBg {
+    border-color: #ebf7ff;
+    -webkit-box-shadow: 0 5px 20px 7px #ebf7ff;
+    -moz-box-shadow: 0 5px 20px 7px #ebf7ff;
+    box-shadow: 0 5px 20px 7px #ebf7ff
+}
+
+.qtPayNew-type .type-card.isBg:after {
+    background-position: 0 -725px
+}
+
+.qtPayNew-type .type-card.isBg .card-price-info em, .qtPayNew-type .type-card.isBg .card-price-deadline {
+    color: #0f98ff
+}
+
+.qtPayNew-type .type-card.isBg .card-icon {
+    border-color: #c4e7ff;
+    background-color: #f3faff
+}
+
+.qtPayNew-type .type-card.isBg .card-icon:after {
+    height: 54px;
+    width: 76px;
+    margin: -25px -37px;
+    background-position: 0 -564px
+}
+
+.qtPayNew-type .type-card.isYc {
+    border-color: #e0f8e1;
+    -webkit-box-shadow: 0 5px 20px 7px #e0f8e1;
+    -moz-box-shadow: 0 5px 20px 7px #e0f8e1;
+    box-shadow: 0 5px 20px 7px #e0f8e1
+}
+
+.qtPayNew-type .type-card.isYc:after {
+    background-position: 0 -1016px
+}
+
+.qtPayNew-type .type-card.isYc .card-price-info em, .qtPayNew-type .type-card.isYc .card-price-deadline {
+    color: #56d357
+}
+
+.qtPayNew-type .type-card.isYc .card-icon {
+    border-color: #c4f1c4;
+    background-color: #f3fff3
+}
+
+.qtPayNew-type .type-card.isYc .card-icon:after {
+    height: 55px;
+    width: 74px;
+    margin: -25px -37px;
+    background-position: 0 -509px
+}
+
+.qtPayNew-type .type-card.isSc {
+    border-color: #fef0df;
+    -webkit-box-shadow: 0 5px 20px 7px #fef0df;
+    -moz-box-shadow: 0 5px 20px 7px #fef0df;
+    box-shadow: 0 5px 20px 7px #fef0df
+}
+
+.qtPayNew-type .type-card.isSc:after {
+    background-position: 0 -919px
+}
+
+.qtPayNew-type .type-card.isSc .card-price-info em, .qtPayNew-type .type-card.isSc .card-price-deadline {
+    color: #fa9524
+}
+
+.qtPayNew-type .type-card.isSc .card-icon {
+    border-color: #ffeed6;
+    background-color: #fffef4
+}
+
+.qtPayNew-type .type-card.isSc .card-icon:after {
+    height: 55px;
+    width: 77px;
+    margin: -25px -38px;
+    background-position: 0 -618px
+}
+
+.qtPayNew-type .type-card.isBoth {
+    border-color: #ffebeb;
+    -webkit-box-shadow: 0 5px 20px 7px #ffebeb;
+    -moz-box-shadow: 0 5px 20px 7px #ffebeb;
+    box-shadow: 0 5px 20px 7px #ffebeb
+}
+
+.qtPayNew-type .type-card.isBoth:after {
+    background-position: 0 -1113px
+}
+
+.qtPayNew-type .type-card.isBoth .card-price-info em, .qtPayNew-type .type-card.isBoth .card-price-deadline {
+    color: #ff2c2c
+}
+
+.qtPayNew-type .type-card.isBoth .card-icon {
+    border-color: #ffc2c2;
+    background-color: #fff5f5
+}
+
+.qtPayNew-type .type-card.isBoth .card-icon:after {
+    height: 52px;
+    width: 90px;
+    margin: -25px -45px;
+    background-position: 0 -673px
+}
+
+.qtPayNew-order {
+    background-color: #f8f8f8;
+    padding: 0 26px;
+    height: 54px;
+    line-height: 54px
+}
+
+.qtPayNew-order .order-left {
+    font-weight: 700;
+    font-size: 16px;
+    color: #666666
+}
+
+.qtPayNew-order .order-right {
+    text-align: right;
+    font-size: 14px
+}
+
+.qtPayNew-order .order-right a:hover {
+    text-decoration: underline;
+    color: #21a900
+}
+
+.qtPayNew-order .order-right i {
+    display: inline-block;
+    vertical-align: middle;
+    margin-right: 10px;
+    width: 29px;
+    height: 29px;
+    background: url("/app/static/img/icon/qt-paynew_v2.png") no-repeat 0 -308px
+}
+
+.qtPayNew-order .order-center {
+    text-align: center;
+    font-size: 14px;
+    line-height: 42px;
+    color: #666666
+}
+
+.qtPayNew-order .order-center .order-price {
+    color: #ff6000;
+    font-size: 16px
+}
+
+.qtPayNew-order .order-center .order-price em {
+    font-size: 30px;
+    color: #ff6000
+}
+
+.qtPayNew-order .order-center .order-price-info {
+    color: #999999
+}
+
+.qtPayNew-order .order-center a:hover {
+    text-decoration: underline;
+    color: #21a900
+}
+
+.qtPayNew-method {
+    padding: 55px 275px 0 275px;
+    height: 340px;
+    background-color: #fff;
+    position: relative
+}
+
+.qtPayNew-method .method-question {
+    position: absolute;
+    top: 70px;
+    right: 0;
+    width: 34px;
+    height: 132px;
+    border: solid 1px #e0e0e0;
+    padding: 14px 9px;
+    line-height: 1;
+    color: #666666;
+    font-size: 14px;
+    cursor: pointer
+}
+
+.qtPayNew-method .method-question .icon-que {
+    background-image: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAyZpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuNi1jMTM4IDc5LjE1OTgyNCwgMjAxNi8wOS8xNC0wMTowOTowMSAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyIgeG1sbnM6c3RSZWY9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZVJlZiMiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIENDIDIwMTcgKFdpbmRvd3MpIiB4bXBNTTpJbnN0YW5jZUlEPSJ4bXAuaWlkOjBFQTY1Mzc4NzEwNTExRTdBRDY4Q0QwMTE5MkMxQjFCIiB4bXBNTTpEb2N1bWVudElEPSJ4bXAuZGlkOjBFQTY1Mzc5NzEwNTExRTdBRDY4Q0QwMTE5MkMxQjFCIj4gPHhtcE1NOkRlcml2ZWRGcm9tIHN0UmVmOmluc3RhbmNlSUQ9InhtcC5paWQ6MEVBNjUzNzY3MTA1MTFFN0FENjhDRDAxMTkyQzFCMUIiIHN0UmVmOmRvY3VtZW50SUQ9InhtcC5kaWQ6MEVBNjUzNzc3MTA1MTFFN0FENjhDRDAxMTkyQzFCMUIiLz4gPC9yZGY6RGVzY3JpcHRpb24+IDwvcmRmOlJERj4gPC94OnhtcG1ldGE+IDw/eHBhY2tldCBlbmQ9InIiPz6gxzJTAAABg0lEQVR42nTTzStEURjH8ZkxC5JMKEZeSkkpkrK3UCwspEYyKbKjkPG2M8pmkJeNrFixUKJQ/gELCqVYYMEUUlIKyUK+p363jtN16tO9c+c8z3l7TjByFA84rRTD6ESxvr1gC4u4tTuHnOBppDGCH2wr8A39uMG8HRC23tfQiwMluHaSl2EWCb132DOYVHAKrQpuxzHOENfMzLLGEMOcCQyyB9k833GOeiUcwpKW8Y1MLS+p/w/RjEIzg3F9bNMzV8H3yEAW9jGFqPp06TllEvRoBmlrvQNotH6vWidk2ise0B3ShlxZnc2Or+BOvyPYxCMurH4nyPE2MRjwb1EdnWk1+HI7hDVS9T8J9lCAfE3bbg34MDNYhzmJCp8EKW2uG5yHErO0kFVZuz4JYqpAt23omTQJPjGhNaZ8RipyvplCasGC2VivlE2JVqkmajGKSzRZgZWYUQnvqKT/3IU+1UJSIzzhVNVYp+MOaOSEFxT0uc7lGNT6vcJ51s1cdi/ZrwADAFVBUqvmvI+AAAAAAElFTkSuQmCC");
+    width: 16px;
+    height: 16px;
+    display: inline-block;
+    margin: 0 0 2px -2px
+}
+
+.qtPayNew-method .method-question:hover .question-nav {
+    display: block
+}
+
+.qtPayNew-method .method-question .question-nav {
+    cursor: default;
+    position: absolute;
+    z-index: 5;
+    top: 0;
+    right: 33px;
+    width: 400px;
+    background-color: #ffffff;
+    box-shadow: 0px 2px 8px 0 rgba(0, 0, 0, 0.22);
+    display: none;
+    padding: 14px;
+    border-color: #8d8e8d;
+    -webkit-box-shadow: 0 5px 20px 7px #8d8e8d;
+    -moz-box-shadow: 0 5px 20px 7px #8d8e8d;
+    box-shadow: 0 5px 20px 7px #8d8e8d;
+}
+
+.qtPayNew-method .method-question .nav-phone, .qtPayNew-method .method-question .nav-ques {
+    margin-left: 34px;
+    position: relative
+}
+
+.qtPayNew-method .method-question .nav-phone .code, .qtPayNew-method .method-question .nav-ques .code {
+    width: 50%;
+}
+
+.qtPayNew-method .method-question .nav-phone .code, .qtPayNew-method .method-question .nav-ques .code, .qtPayNew-method .method-question .nav-phone .code p, .qtPayNew-method .method-question .nav-ques .code p {
+    text-align: center;
+}
+
+.qtPayNew-method .method-question .nav-phone .code p, .qtPayNew-method .method-question .nav-ques .code p {
+    margin-bottom: 0px !important;
+    margin-top: 10px !important;
+}
+
+.qtPayNew-method .method-question .nav-phone img, .qtPayNew-method .method-question .nav-ques img {
+    width: 100%;
+    height: auto;
+}
+
+.qtPayNew-method .method-question .nav-phone:after, .qtPayNew-method .method-question .nav-ques:after {
+    position: absolute;
+    content: ' ';
+    top: 0;
+    left: -36px;
+    width: 22px;
+    height: 20px
+}
+
+.qtPayNew-method .method-question .nav-ques:after {
+    top: 20px;
+}
+
+.qtPayNew-method .method-question .nav-phone:after {
+    background: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABYAAAAUCAYAAACJfM0wAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAyZpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuNi1jMTM4IDc5LjE1OTgyNCwgMjAxNi8wOS8xNC0wMTowOTowMSAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyIgeG1sbnM6c3RSZWY9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZVJlZiMiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIENDIDIwMTcgKFdpbmRvd3MpIiB4bXBNTTpJbnN0YW5jZUlEPSJ4bXAuaWlkOjMwMzEwQTY4NzEwQzExRTc4RDQwQkIzMDg0NTU3MjI1IiB4bXBNTTpEb2N1bWVudElEPSJ4bXAuZGlkOjMwMzEwQTY5NzEwQzExRTc4RDQwQkIzMDg0NTU3MjI1Ij4gPHhtcE1NOkRlcml2ZWRGcm9tIHN0UmVmOmluc3RhbmNlSUQ9InhtcC5paWQ6MzAzMTBBNjY3MTBDMTFFNzhENDBCQjMwODQ1NTcyMjUiIHN0UmVmOmRvY3VtZW50SUQ9InhtcC5kaWQ6MzAzMTBBNjc3MTBDMTFFNzhENDBCQjMwODQ1NTcyMjUiLz4gPC9yZGY6RGVzY3JpcHRpb24+IDwvcmRmOlJERj4gPC94OnhtcG1ldGE+IDw/eHBhY2tldCBlbmQ9InIiPz5vODYnAAABvklEQVR42qSUSyhEYRTHZ8YsRNl4k0ejlNiIhcxCkSSJlGzYK7GzNJlRko1sSAopspKFjRALkgUrjyR55BXKEnn+Tp3JGPde9+bUr1P33u9/z3de7mAw6LKwbGiHBsgAD9zBEozCfiAQMDzosRAdgnMVPoRB6IdtaII9mDU77DaJeBeKoRVmTM5WwwI8QyqRv0W+9BocWFTRZHiwuNEyxMM9HEGeVSpqoQ7y/xCNNMm9LxQKdVsJT8MqHNsUdZGCV1yf1ABxj5FwLiRBs8uhBb5bo9FIOFt9xR/d8suItCgiLT+6QqLdgEx9Xgo7NnXT4Ro+4AlquMCmRJYAp9LsUAjvkOYg4BT15TApAcoNRHgeHuVPcAAx+ne79q7+hkg78VuwLsJVOlFiOeo/HQh/RtVoABLDRYp3/d/c6mPDXSEj26sPz23sEDPBPfWyU45EoE2rKkPREvWxHbvRPDdStBVNZ5VHc+SDM5jTjy8cCJdowSd0wLIo4lV4Cb3otpI+jnMw0l0wDD0wheCl2Xa7sinoh3EogA4ER6I/8NrcXn71ZVCpQ7EG9YieGB2yIywTNaYFvdUumojoAkP7EmAAIntsG8L8GoQAAAAASUVORK5CYII=") no-repeat
+}
+
+.qtPayNew-method .method-question .nav-phone p {
+    font-size: 14px;
+    color: #666666
+}
+
+.qtPayNew-method .method-question .nav-phone p:first-child {
+    margin-bottom: 10px
+}
+
+.qtPayNew-method .method-question .nav-phone em {
+    font-weight: 700;
+    font-size: 16px
+}
+
+.qtPayNew-method .method-question .nav-ques:after {
+    background: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAUCAYAAACNiR0NAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAyZpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuNi1jMTM4IDc5LjE1OTgyNCwgMjAxNi8wOS8xNC0wMTowOTowMSAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyIgeG1sbnM6c3RSZWY9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZVJlZiMiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIENDIDIwMTcgKFdpbmRvd3MpIiB4bXBNTTpJbnN0YW5jZUlEPSJ4bXAuaWlkOjJDQzNBOTA4NzEwQzExRTdCMEExQTdBMUJEQThBRTE3IiB4bXBNTTpEb2N1bWVudElEPSJ4bXAuZGlkOjJDQzNBOTA5NzEwQzExRTdCMEExQTdBMUJEQThBRTE3Ij4gPHhtcE1NOkRlcml2ZWRGcm9tIHN0UmVmOmluc3RhbmNlSUQ9InhtcC5paWQ6MkNDM0E5MDY3MTBDMTFFN0IwQTFBN0ExQkRBOEFFMTciIHN0UmVmOmRvY3VtZW50SUQ9InhtcC5kaWQ6MkNDM0E5MDc3MTBDMTFFN0IwQTFBN0ExQkRBOEFFMTciLz4gPC9yZGY6RGVzY3JpcHRpb24+IDwvcmRmOlJERj4gPC94OnhtcG1ldGE+IDw/eHBhY2tldCBlbmQ9InIiPz5izqI9AAABjElEQVR42qSUsUoDQRCGN+eCjSBiZaFJ1HdIZWMnKFpEYgI+QKytAznEQt/AQgSVxEIEC+0shYhBEERUDKikU2NEhIBGv4U5OZU1d2bg4+bmkv/+3Zm9SD6fd5RSq5AEk38oe0RgDebkPga70ICpXC5X1STrkJEH7/InW5gXXkgehzI8wRDcuq4bNYIp2IdJFTwG4VryPpw1EKuSHznyhjARE7EbOIMKYr1cj424lmV2BBQbhisxEZPaJdxLnnRCOIuL2Av0++pluWZY+rYTwlkFahAVURNFmIE0YgVT0CGdDfjENqShs4gV2ccR8lEdcM9qkvudpWSZBamlIatbODMz92xzBgXf7x/+WrI3tK/Q7at/OfshprwTZmvKEvRAF4xJbdPi7FvYHE7ACpzAHpQgYXHWUtBsfqc5m1CXWkLGY6vVSGiLOxMLvsF15eOh/iN4CItwKvldmIOupTFNX60khI2m12XTzTfVftQ9hwcwDssBPrC/giPnzWAWHo3gNOzAfJsOz43WpwADAExTa9udDY0pAAAAAElFTkSuQmCC") no-repeat
+}
+
+.qtPayNew-method .method-question .nav-ques .qt-btn {
+    width: 90px;
+    height: 36px;
+    line-height: 36px;
+    margin: 8px 0 15px;
+    cursor: pointer
+}
+
+.qtPayNew-method .method-question .nav-ques .text {
+    color: #ff6000;
+    text-decoration: underline;
+    cursor: pointer
+}
+
+.qtPayNew-method .method-wechat, .qtPayNew-method .method-alipay {
+    font-size: 14px;
+    width: 200px
+}
+
+.qtPayNew-method .method-wechat p, .qtPayNew-method .method-alipay p {
+    margin-top: 14px;
+    color: #888888;
+    text-align: center
+}
+
+.qtPayNew-method .method-wechat p a, .qtPayNew-method .method-alipay p a {
+    font-size: 14px;
+    color: #00aaef;
+    text-decoration: underline
+}
+
+.qtPayNew-method .method-img {
+    width: 200px;
+    height: 200px;
+    position: relative;
+    text-align: center
+}
+
+.qtPayNew-method .method-img .img-bg {
+    position: absolute;
+    width: 200px;
+    height: 200px;
+    line-height: 200px;
+    text-align: center;
+    background: #000;
+    opacity: .8;
+    filter: alpha(opacity=80)
+}
+
+.qtPayNew-method .method-img .img-bg a {
+    font-size: 16px;
+    color: #fff;
+    text-decoration: underline
+}
+
+.qtPayNew-others {
+    margin-top: 20px;
+    padding-right: 25px;
+    font-size: 12px;
+    color: #666666
+}
+
+.qtPayNew-others dd {
+    line-height: 24px
+}
+
+.qtPayNew-others a {
+    text-decoration: underline
+}
+
+.qtPayNew-others a:hover {
+    color: #21a900
+}
+
+.qtPayNew-model {
+    position: fixed;
+    display: none;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 2000
+}
+
+.qtPayNew-model .model-close {
+    position: absolute;
+    font-size: 40px;
+    color: #b3b3b3;
+    right: 5px;
+    top: 0
+}
+
+.qtPayNew-model .model-bg {
+    height: 100%;
+    background: #000;
+    opacity: .4;
+    filter: alpha(opacity=40)
+}
+
+.qtPayNew-model .free-card {
+    overflow: hidden;
+    background-color: #fff;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    margin: -140px -300px;
+    width: 620px;
+    height: 280px
+}
+
+.qtPayNew-model .free-card:after {
+    position: absolute;
+    height: 97px;
+    width: 98px;
+    content: " ";
+    top: -1px;
+    left: -1px;
+    background: url("/app/static/img/icon/qt-paynew_v2.png") no-repeat 0 -822px
+}
+
+.qtPayNew-model .free-card .card-icon {
+    width: 138px;
+    height: 138px;
+    border: 1px solid #eeeeee;
+    border-radius: 50%;
+    text-align: center;
+    margin: 60px 66px 30px 79px;
+    font-size: 16px;
+    padding-top: 38px
+}
+
+.qtPayNew-model .free-card .card-icon em {
+    font-size: 30px;
+    font-weight: 700;
+    color: #ff6000
+}
+
+.qtPayNew-model .free-card .card-price-info {
+    text-align: center;
+    font-size: 20px;
+    padding-left: 20px
+}
+
+.qtPayNew-model .free-card .card-price-info em {
+    font-size: 36px;
+    font-weight: 700
+}
+
+.qtPayNew-model .free-card .card-info {
+    margin-top: 45px
+}
+
+.qtPayNew-model .free-card .card-info dt {
+    font-size: 18px;
+    font-weight: 700;
+    color: #666666
+}
+
+.qtPayNew-model .free-card .card-info dd {
+    margin-top: 20px;
+    padding-left: 28px;
+    font-size: 14px;
+    color: #888888;
+    position: relative
+}
+
+.qtPayNew-model .free-card .card-info dd em {
+    font-weight: 700;
+    color: #888888
+}
+
+.qtPayNew-model .free-card .card-info dd:after {
+    position: absolute;
+    width: 14px;
+    height: 12px;
+    top: 4px;
+    left: 0;
+    content: " ";
+    background: url("/app/static/img/icon/qt-paynew_v2.png") no-repeat 0 0
+}
+
+.qtPayNew-model .free-card .card-info dd.info-alert {
+    font-size: 12px;
+    margin-top: 12px;
+    color: #a8a8a8
+}
+
+.qtPayNew-model .free-card .card-info dd.info-alert:after {
+    background: transparent
+}
+
+.qtPayNew-model .model-m {
+    width: 800px;
+    height: 500px;
+    position: absolute;
+    z-index: 1002;
+    left: 50%;
+    top: 8%;
+    margin-left: -400px;
+    border-radius: 3px;
+    background: #fff
+}
+
+.qtPayNew-model .model-m .model-bt {
+    text-align: center;
+    font-size: 24px;
+    color: #333;
+    padding-top: 38px;
+    padding-bottom: 26px
+}
+
+.qtPayNew-model .model-m .model-cnt {
+    width: 730px;
+    margin: 0 auto;
+    border: 1px #efefef solid
+}
+
+.qtPayNew-model .model-m .model-cnt .cnt-font {
+    font-size: 14px;
+    color: #040000;
+    line-height: 28px;
+    max-height: 350px;
+    overflow: auto;
+    padding: 6px 14px
+}
