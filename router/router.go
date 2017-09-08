@@ -19,8 +19,10 @@ func Start() {
 
 	e.Static("/app", "app")
 	e.File("/", "app/page/index.html")
-
+	e.POST("/order/query", handler.GetOrderById)
+	e.POST("/order/create", handler.CreateMemberTypeOrder)
 	e.POST("/member/type", handler.GetMemberTypeAndCharge)
+	e.POST("/alipay/notify", handler.AlipayNotify)
 
 	utils.Open(global.Host)
 	port := ":" + convert.ToString(global.Port)

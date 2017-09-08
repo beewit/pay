@@ -234,8 +234,7 @@
         </div>
         <div class="method-wechat fl">
             <div class="method-img">
-                <img src="https://pay.swiftpass.cn/pay/qrcode?uuid=weixin%3A%2F%2Fwxpay%2Fbizpayurl%3Fpr%3D6mzMJpW"
-                     class="wx-png" width="200" height="200">
+                <iframe id="wechat-code" style="width: 205px;height: 205px;"></iframe>
             </div>
             <p style="position:relative;text-align:center;">
                 <span id="pay-logo"
@@ -246,15 +245,14 @@
         <div class="method-alipay fr">
             <div class="method-img">
                 <div class="pay-code alipay-code"></div>
-                <img src="https://pay.swiftpass.cn/pay/qrcode?uuid=https%3A%2F%2Fqr.alipay.com%2Fbax05097xvul2nmurirm20fe" class="ali-png"
-                     width="200" height="200">
+                <iframe id="alipay-code" style="width: 205px;height: 205px;"></iframe>
             </div>
             <p>
                 <span id="pay-logo"
                       style="background:url('/app/static/img/icon/qt-paynew_v2.png') no-repeat scroll -30px -12px;width:26px;height:24px;display:inline-block;position:relative;top:8px"></span>使用支付宝扫码付款
             </p>
             <p>
-                <a href="javascript:void(0);" class="alipay_t">跳转支付宝网页版支付</a>
+                <a href="javascript:void(0);" class="alipay_t" target="_blank">跳转支付宝网页版支付</a>
             </p>
         </div>
     </div>
@@ -288,7 +286,7 @@
 <div class="qt-footer-other"> Copyright © 2017工蜂小智 <a href="http://www.miitbeian.gov.cn/" target="_blank">渝ICP备14004689号-1</a></div>
 <script id="memberTypeList" type="text/html">
     {{#  layui.each(d, function(index, item){ }}
-    <a class="vip-item {{ item.code }} {{ item.default=='是'?'on':'' }}" data-tag="{{ item.code }}">
+    <a class="vip-item {{ item.code }} {{ item.default=='是'?'on':'' }}" data-tag="{{ item.code }}" data-id="{{ item.id }}">
         <i class="vip-icon"></i>{{ item.name }}
     </a>
     {{#  }); }}
@@ -299,7 +297,7 @@
     <div class="type-price  {{ item.code }}" style="{{ item.default=='是'?'display: block;':'display: none;' }}">
         {{# layui.each(d.memberTypeCharge, function(index2, item2){ }}
         {{# if(item2.member_type_id == item.id){ }}
-        <a href="javascript:;" class="price-item {{ item.default=='是' && item2.default=='是'?'on':'' }}" data-info1="0.27"
+        <a href="javascript:;" class="price-item {{ item.default=='是' && item2.default=='是'?'on':'' }}"
            data-id="{{ item2.id }}" data-price="{{ removeDecimalPoint(item2.price) }}"
            data-default="{{ item2.default }}">
             {{# if(item2.tip != null && item2.tip != ""){ }}
@@ -313,63 +311,12 @@
     </div>
     {{#  }); }}
 </script>
+
 <script src="/app/static/js/jquery.min.js"></script>
 <script src="/app/static/js/plugs/layui/layui.all.js"></script>
 <script src="/app/static/js/common.ajax.js"></script>
 <script src="/app/static/js/common.js"></script>
-<script>
-    var laytpl;
-    var mtTpl = memberTypeList.innerHTML, memberTypeView = document.getElementById('memberTypeView');
-    var mtcTpl = memberTypeCharge.innerHTML, memberTypeChrageView = document.getElementById('memberTypeChrageView');
-    layui.use('laytpl', function () {
-        laytpl = layui.laytpl;
-        loadMemberType();
-    });
-    $(function () {
-        $(".type-vip").delegate(".vip-item", "click", function () {
-            var t = $(this).attr("data-tag");
-            $(".vip-item").removeClass("on");
-            $(this).addClass("on");
-            $(".type-price").hide();
-            $("." + t + ".type-price").show();
-            $("." + t + ".type-price").removeClass("on");
-            $(".price-item").removeClass("on")
-            $("." + t + ".type-price a[data-default=是]").addClass("on");
-            $(".type-card").hide();
-            $("." + t + ".type-card").show();
-            $("." + t).show();
-        });
-
-        $(".type-price-box").delegate(".price-item", "click", function () {
-            $(this).parent().find(".price-item").removeClass("on")
-            $(this).addClass("on")
-        });
-
-        $(".j-agreement").click(function () {
-            $("#agreement").show();
-        });
-
-        $(".model-close").click(function () {
-            $(".qtPayNew-model").hide();
-        });
-    });
-
-    function loadMemberType() {
-        $.ajax({
-            load_tip: false,
-            url: "/member/type",
-            success: function (d) {
-                if (d.ret == 200) {
-                    laytpl(mtTpl).render(d.data.memberType, function (html) {
-                        memberTypeView.innerHTML = html;
-                    });
-                    laytpl(mtcTpl).render(d.data, function (html) {
-                        memberTypeChrageView.innerHTML = html;
-                    });
-                }
-            }
-        });
-    }
-</script>
+<script src="/app/static/js/js.cookie.js"></script>
+<script src="/app/static/js/view/pay.js"></script>
 </body>
 </html>

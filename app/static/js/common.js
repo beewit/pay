@@ -24,7 +24,7 @@ $(function () {
         $(document).bind("selectstart", function () {
             return false;
         });
-        $("body").attr("oncontextmenu", "return false").attr("onselectstart", "return false").attr("oncopy", "alert('不支持复制！');return false;");
+        //$("body").attr("oncontextmenu", "return false").attr("onselectstart", "return false").attr("oncopy", "alert('不支持复制！');return false;");
     }
 });
 
