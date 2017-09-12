@@ -170,19 +170,16 @@ func sign(args Request) (string, error) {
 	sign, err := NewTrade().Sign(Sign{
 		AppID:      global.AlipayAppId,
 		Method:     "alipay.trade.page.pay",
-		ReturnURL:  "http://pay.tbqbz.com/app/page/notify/load.html",
+		ReturnURL:  global.AlipayReturnURL,
 		Charset:    "utf-8",
 		SignType:   "RSA2",
 		TimeStamp:  generateTimestampStr(),
 		Version:    "1.0",
-		NotifyURL:  "http://pay.tbqbz.com/alipay/notify",
+		NotifyURL:  global.AlipayNotifyURL,
 		BizContent: string(body),
 	}, global.AlipayPrivatePath)
 	if err != nil {
 		return "", err
 	}
-	return fmt.Sprintf("%s?%s",
-		"https://openapi.alipay.com/gateway.do",
-		sign,
-	), nil
+	return fmt.Sprintf("%s?%s", "https://openapi.alipay.com/gateway.do", sign, ), nil
 }

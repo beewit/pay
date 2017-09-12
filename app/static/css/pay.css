@@ -939,3 +939,9 @@
     overflow: auto;
     padding: 6px 14px
 }
+
+.load {
+    background: url(/app/static/img/load.gif) no-repeat;
+    background-position-x: 50%;
+    background-position-y: 40%;
+}

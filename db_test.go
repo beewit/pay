@@ -12,6 +12,9 @@ import (
 	"github.com/beewit/beekit/utils/convert"
 	"time"
 	"github.com/beewit/pay/handler"
+	"net/http"
+	"encoding/xml"
+	"github.com/beewit/pay/wxpay"
 )
 
 func TestMemberType(t *testing.T) {
@@ -131,7 +134,7 @@ func TestConvert(t *testing.T) {
 }
 
 func TestUpdateOrder(t *testing.T) {
-	flog := handler.UpdateOrderMTCStatus(125985189636608000)
+	flog := handler.UpdateOrderMTCStatus(125985189636608000, 0.1)
 	println(flog)
 }
 
@@ -143,4 +146,37 @@ func TestTime(t *testing.T) {
 	}
 	println(convert.ToString(tradeNo))
 	println(len(convert.ToString(tradeNo)))
+}
+
+func TestID(t *testing.T) {
+	iw, _ := utils.NewIdWorker(1)
+	tradeNo, _ := iw.NextId()
+	tradeNo2, _ := iw.NextId()
+	tradeNo3, _ := iw.NextId()
+	println(tradeNo)
+	println(tradeNo2)
+	println(tradeNo3)
+}
+
+func TestWechatNotify(t *testing.T) {
+	wn := &wxpay.Notice{
+		AppID: "123456789",
+	}
+	body, err := xml.Marshal(wn)
+	if err != nil {
+		t.Error(err)
+	}
+	header := http.Header{}
+	header.Add("Accept", "application/xml")
+	header.Add("Content-Type", "application/xml;charset=utf-8")
+	body, err = uhttp.Cmd(uhttp.Request{
+		Method: "POST",
+		URL:    "http://127.0.0.1:8083/wechat/notify",
+		Body:   body,
+		Header: header,
+	})
+	if err != nil {
+		t.Error(err)
+	}
+	t.Log(string(body[:]))
 }

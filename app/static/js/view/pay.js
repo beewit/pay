@@ -22,13 +22,15 @@ $(function () {
         $(".type-card").hide();
         $("." + t + ".type-card").show();
         $("." + t).show();
-        createAlipayOrder()
+        createOrder("支付宝")
+        createOrder("微信")
     });
 
     $(".type-price-box").delegate(".price-item", "click", function () {
         $(this).parent().find(".price-item").removeClass("on")
         $(this).addClass("on")
-        createAlipayOrder()
+        createOrder("支付宝")
+        createOrder("微信")
     });
 
     $(".j-agreement").click(function () {
@@ -46,7 +48,6 @@ $(function () {
         }
     });
 
-    queryOrder()
 });
 
 function loadMemberType() {
@@ -61,39 +62,48 @@ function loadMemberType() {
                 laytpl(mtcTpl).render(d.data, function (html) {
                     memberTypeChrageView.innerHTML = html;
                 });
-                createAlipayOrder()
+                createOrder("支付宝")
+                createOrder("微信")
             }
         }
     });
 }
 
-var tradeNo;
+var ct;
 var i = 0;
 
-function createAlipayOrder() {
+function createOrder(pt) {
     var $vip = $(".vip-item.on");
     var vipId = $vip.attr("data-id")
     var $price = $(".type-price." + $vip.attr("data-tag")).find(".price-item.on");
     var priceId = $price.attr("data-id");
     var price = $price.attr("data-price");
     $(".order-price .o-p").html(price);
+    $("#alipay-code").attr("src", "");
+    $("#wechat-code").attr("src", "");
     $.ajax({
         load_tip: false,
         url: "/order/create",
-        data: {mtId: vipId, mtcId: priceId, pt: "支付宝"},
+        data: {mtId: vipId, mtcId: priceId, pt: pt},
         success: function (d) {
             if (d.ret == 200) {
-                tradeNo = d.data.tradeNo
-                //启动定时查询任务
-                $("#alipay-code").attr("src", d.data.codeUrl)
-                $(".alipay_t").attr("data-href", d.data.getUrl)
+                var tradeNo = d.data.tradeNo;
+                if (pt == "支付宝") {
+                    //启动定时查询任务
+                    $("#alipay-code").attr("src", d.data.codeUrl);
+                    $(".alipay_t").attr("data-href", d.data.getUrl);
+                } else if (pt == "微信") {
+                    $("#wechat-code").attr("src", d.data.codeUrl);
+                }
+                clearTimeout(ct)
+                queryOrder(tradeNo);
             }
         }
     });
 }
 
 
-function queryOrder() {
+function queryOrder(tradeNo) {
     if (tradeNo) {
         $.ajax({
             load_tip: false,
@@ -119,22 +129,20 @@ function queryOrder() {
                     }
                 }
                 else if (d.ret == 404) {
-                    timeOut()
+                    timeOut(tradeNo)
                 }
             }
         });
-    } else {
-        timeOut()
     }
 }
 
-function timeOut() {
+function timeOut(tradeNo) {
+    //2个小时后不再轮询
     if (i < 3600 * 2) {
-        setTimeout(function () {
+        ct = setTimeout(function () {
             i++
-            queryOrder()
+            queryOrder(tradeNo)
+            console.log(tradeNo)
         }, 1000)
-    } else {
-        //2个小时后不再轮询
     }
 }

@@ -22,4 +22,5 @@ www
 pay
 config.json
 rsa_private_key.pem
+rsa_alipay_public_key.pem
 rsa_public_key.pem

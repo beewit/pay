@@ -23,6 +23,8 @@ func Start() {
 	e.POST("/order/create", handler.CreateMemberTypeOrder)
 	e.POST("/member/type", handler.GetMemberTypeAndCharge)
 	e.POST("/alipay/notify", handler.AlipayNotify)
+	e.POST("/wechat/notify", handler.WechatNotify)
+	e.GET("/wechat/notify", handler.WechatNotify)
 
 	utils.Open(global.Host)
 	port := ":" + convert.ToString(global.Port)

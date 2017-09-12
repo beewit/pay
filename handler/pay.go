@@ -13,6 +13,10 @@ import (
 	"net/url"
 	"errors"
 	"time"
+	"github.com/beewit/pay/wxpay"
+	"io/ioutil"
+	"encoding/xml"
+	"encoding/json"
 )
 
 func CreateMemberTypeOrder(c echo.Context) error {
@@ -82,8 +86,50 @@ func AlipayNotify(c echo.Context) error {
 		global.Log.Error(err.Error())
 		return c.HTML(http.StatusOK, "error")
 	}
-	UpdateOrderMTCStatus(convert.MustInt64(c.FormValue("out_trade_no")))
+	UpdateOrderMTCStatus(convert.MustInt64(c.FormValue("out_trade_no")), convert.MustFloat64(c.FormValue("total_amount")))
 	return c.HTML(http.StatusOK, "success")
+}
+
+func WechatNotify(c echo.Context) error {
+	body, bErr := ioutil.ReadAll(c.Request().Body)
+	if bErr != nil {
+		global.Log.Error("读取http body失败，原因：", bErr.Error())
+		wr := &wxpay.Response{
+			ReturnCode: "ERROR",
+			ReturnMsg:  "读取http body失败",
+		}
+		return c.XML(http.StatusOK, wr)
+	}
+	defer c.Request().Body.Close()
+
+	var args wxpay.Notice
+	bErr = xml.Unmarshal(body, &args)
+	if bErr != nil {
+		global.Log.Error("读取http body失败，原因：", bErr.Error())
+		wr := &wxpay.Response{
+			ReturnCode: "ERROR",
+			ReturnMsg:  "解析HTTP Body格式到xml失败",
+		}
+		return c.XML(http.StatusOK, wr)
+	}
+
+	//args, _ := c.FormParams()
+	j, _ := json.Marshal(args)
+	global.Log.Info("支付成功的参数：" + string(j[:]))
+	err := wxpay.NewTrade().Verify(args, global.WechatApiKey)
+	if err != nil {
+		global.Log.Error(err.Error())
+		wr := &wxpay.Response{
+			ReturnCode: "ERROR",
+			ReturnMsg:  "验签失败",
+		}
+		return c.XML(http.StatusOK, wr)
+	}
+	UpdateOrderMTCStatus(convert.MustInt64(args.OutTradeNo), convert.MustFloat64(args.TotalFee)/100)
+	wr := &wxpay.Response{
+		ReturnCode: "SUCCESS",
+	}
+	return c.XML(http.StatusOK, wr)
 }
 
 func GetOrderById(c echo.Context) error {
@@ -142,7 +188,7 @@ func updateOrderUrl(id int64, codeUrl, getUrl string) int64 {
 	return x
 }
 
-func UpdateOrderMTCStatus(id int64) bool {
+func UpdateOrderMTCStatus(id int64, price float64) bool {
 	flog := false
 	global.DB.Tx(func(tx *mysql.SqlConnTransaction) {
 		errMsg := ""
@@ -159,6 +205,11 @@ func UpdateOrderMTCStatus(id int64) bool {
 			global.Log.Error(errMsg)
 			return
 		}
+		//if convert.MustFloat64(order["price"]) != price {
+		//	errMsg := "订单支付金额不一致"
+		//	global.Log.Warning(errMsg)
+		//	return
+		//}
 		sql := "UPDATE order_payment SET pay_status=?,pay_time=? WHERE id=?"
 		x, err := global.DB.Update(sql, enum.PAY_STATUS_END, utils.CurrentTime(), id)
 		if err != nil {
@@ -327,11 +378,21 @@ func getOrderCode(mt map[string]interface{}, mtc map[string]interface{}, accId i
 			}
 		})
 		if flog {
-			codeUrl, getUrl, payErr := alipay.GetPayUrl(
-				"工蜂小智 - 会员套餐",
-				"工蜂小智 - 会员套餐",
-				convert.ToString(tradeNo),
-				convert.MustFloat64(mtc["price"]))
+			var codeUrl, getUrl string
+			var payErr error
+			if payType == enum.PAY_TYPE_ALIPAY {
+				codeUrl, getUrl, payErr = alipay.GetPayUrl(
+					"工蜂小智 - 会员套餐",
+					"工蜂小智 - 会员套餐",
+					convert.ToString(tradeNo),
+					convert.MustFloat64(mtc["price"]))
+			} else if payType == enum.PAY_TYPE_WECHAT {
+				codeUrl, payErr = wxpay.GetPayUrl(
+					"工蜂小智 - 会员套餐",
+					"工蜂小智 - 会员套餐",
+					convert.ToString(tradeNo),
+					convert.MustFloat64(mtc["price"]))
+			}
 			if payErr != nil {
 				return false, 0, "", ""
 			}

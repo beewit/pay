@@ -30,6 +30,7 @@ type (
 		OpenID         string   `xml:"openid,omitempty" url:"openid,omitempty"`                     // 是 openid(JSAPI)
 		Request
 	}
+
 	// Request request
 	Request struct {
 		Body          string `xml:"body,omitempty" url:"body,omitempty"`                       // 是 商品描述
@@ -63,7 +64,7 @@ type (
 		Sign      string `xml:"sign,omitempty"`       // 是 签名
 		TradeType string `xml:"trade_type,omitempty"` // 是 交易类型
 		PrepayID  string `xml:"prepay_id,omitempty"`  // 是 预支付交易会话标识
-		CodeURL   string `xml:"code_url,omitempty"`   // 否 二维码链接
+		CodeURL   string `xml:"code_url,omitempty" url:"code_url,omitempty"`   // 否 二维码链接
 	}
 
 	// Defray defray
@@ -77,6 +78,7 @@ type (
 		PartnerID string `json:"partnerid,omitempty" url:"partnerid,omitempty"` // 是 商家ID （app）
 		PrepayID  string `json:"prepayid,omitempty" url:"prepayid,omitempty"`   // 是 预支付ID（app）
 		Sign      string `json:"sign,omitempty" url:"sign,omitempty"`           // 是 签名 (app)
+		CodeUrl   string `json:"code_url,omitempty" url:"code_url,omitempty"`   //二维码
 	}
 	// Notice notice
 	Notice struct {
