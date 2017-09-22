@@ -17,7 +17,7 @@ import (
 	"github.com/beewit/pay/wxpay"
 )
 
-func TestMemberType(t *testing.T) {
+func TestFunc(t *testing.T) {
 
 	b, err := uhttp.PostForm("http://127.0.0.1:8083/member/type", nil)
 	if err != nil {
@@ -134,7 +134,7 @@ func TestConvert(t *testing.T) {
 }
 
 func TestUpdateOrder(t *testing.T) {
-	flog := handler.UpdateOrderMTCStatus(125985189636608000, 0.1)
+	flog := handler.UpdateOrderFuncStatus(125985189636608000, 0.1)
 	println(flog)
 }
 
@@ -179,4 +179,19 @@ func TestWechatNotify(t *testing.T) {
 		t.Error(err)
 	}
 	t.Log(string(body[:]))
+}
+
+func TestInserMapList(t *testing.T) {
+	ms := make([]map[string]interface{}, 2)
+	m := map[string]interface{}{}
+	m["id"] = 51
+	ms[0] = m
+	m = map[string]interface{}{}
+	m["id"] = 52
+	ms[1] = m
+	x, err := global.DB.InsertMapList("system_logs", ms)
+	if err != nil {
+		println(err.Error())
+	}
+	println(x)
 }

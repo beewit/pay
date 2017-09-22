@@ -10,13 +10,14 @@
     <link rel="stylesheet" type="text/css" href="/app/static/css/pay.css">
 </head>
 <body>
+<!--
 <div class="qt-header-other">
     <div class="w1200">
         <div class="qt-logo"><a href="http://www.tbqbz.com" title="工蜂小智" target="_blank"></a></div>
         <div class="qt-header-box clearfix">
             <div class="qt-header-nav fl">
                 <div class="nav-list on"><a href="http://www.tbqbz.com">首页</a></div>
-                <div class="nav-list"><a href="javascript:;">下载 <!--<i class="icon-down"></i>--></a>
+                <div class="nav-list"><a href="javascript:;">下载 <i class="icon-down"></i></a>
                 </div>
                 <div class="nav-list"><a href="javascript:;">关于我们</a>
                 </div>
@@ -51,24 +52,26 @@
             </div>
         </div>
     </div>
-</div>
+</div>-->
 <div class="main-qtPay-new">
     <div class="qtPayNew-login clearfix">
         <div class="fl">
             <p class="login-info wechat">
                 <b>登录帐号：</b>
-                <span id="username-logined">承諾，/aiq一世的誓言</span>
-                <a href="http://www.tbqbz.com/user/" target="_blank">
-                    <em class="info-green">（ID:8409687）</em>
+                <span id="username-logined"><a href="" style="color: #ff2c2c">[请登陆]</a></span>
+                <a>
+                    <em class="info-green">（ID:
+                        <bm id="id">--</bm>
+                        ）</em>
                 </a>
             </p>
         </div>
         <div class="fr" id="picInfoLogined"></div>
     </div>
-    <div class="qtPayNew-type clearfix" style="height:360px">
+    <div class="qtPayNew-type clearfix">
         <div class="type-left fl">
-            <p class="type-title">1.选择会员类型</p>
-            <div class="type-vip" id="memberTypeView">
+            <p class="type-title">1.已选择开通的功能</p>
+            <div class="type-vip" id="funcView">
                 <a href="javascript:;" class="vip-item"></a>
                 <!--<a href="javascript:;" class="vip-item isYc on" data-tag="isYc">
                    <i class="vip-icon"></i>个人
@@ -81,52 +84,10 @@
                <em class="both-alert">推荐</em>
                </a>-->
             </div>
-            <p class="type-title">2.选择该会员下的价格</p>
-            <div class="type-price-box" id="memberTypeChrageView">
-                <div class="type-price isYc" style="display: block;">
-                    <a class="price-item">
-                    </a>
-                </div>
-                <!--<div class="type-price isYc" style="display: block;">
-                    <a href="javascript:;" class="price-item" data-info1="0.27"
-                       data-info2="12" data-price="98">
-                        <span class="price-info"><em>10</em> 元/10天体验   </span>
-                        <span class="price-deadline" style="text-decoration: line-through;">10元  </span>
-                    </a>
-                    <a href="javascript:;" class="price-item on" data-info1="0.27"
-                       data-info2="12" data-price="98">
-                        <em class="both-alert">限时折扣</em>
-                        <span class="price-info"><em>120</em> 元/半年   </span>
-                        <span class="price-deadline" style="text-decoration: line-through;">180元  </span>
-                    </a>
-                    <a href="javascript:;" class="price-item" data-info1="0.27"
-                       data-info2="12" data-price="98">
-                        <span class="price-info"><em>300</em> 元/年   </span>
-                        <span class="price-deadline" style="text-decoration: line-through;">360元  </span>
-                    </a>
-                </div>
-                <div class="type-price isSc" style="display: none;">
-                    <a href="javascript:;" class="price-item"
-                       data-info1="0.27" data-info2="12" data-price="99">
-                        <span class="price-info"><em>100</em> 元/10天体验</span>
-                        <span class="price-deadline" style="text-decoration: line-through;">499元</span></a>
-                    <a href="javascript:;" class="price-item on" data-info1="0.18" data-info2="12" data-price="69">
-                        <em class="both-alert">限时折扣</em>
-                        <span class="price-info"><em>1500</em> 元/半年 </span>
-                        <span class="price-deadline" style="text-decoration: line-through;">1800元/半年</span></a>
-                    <a href="javascript:;" class="price-item" data-info1="0.63" data-info2="1" data-price="19">
-                        <span class="price-info"><em>300</em> 元/年</span>
-                        <span class="price-deadline" style="text-decoration: line-through;">3600元/年</span></a>
-                </div>
-                <div class="type-price isBoth" style="display: none;">
-                    <a href="javascript:;" class="price-item" data-info1="0.51" data-info2="12" data-price="187">
-                        <em class="both-alert">立减10元</em>
-                        <span class="price-info"><em>187</em> 元/年  </span>
-                        <span class="price-deadline">无限下载 </span>
-                    </a>
-                </div>-->
-            </div>
-            <p class="type-title" style="padding-top:10px;color:#666666;font-size:14px;font-weight:500;display: block !important;">
+            <!--<p class="type-title">2.选择开通方式</p>
+           <div class="type-price-box" id="funcChrageView">
+           </div>
+           <p class="type-title" style="padding-top:10px;color:#666666;font-size:14px;font-weight:500;display: block !important;">
                 已有
                 <span style="color:#ff6000;"> 2681562
                     <span>
@@ -135,69 +96,75 @@
                     位折扣优惠名额
                     </span>
                 </span>
-            </p>
+            </p>-->
         </div>
         <div class="type-right fr">
-            <div class="type-card isYc" style="display: block;">
-                <div class="fl">
-                    <div class="card-icon"></div>
-                    <p class="card-price-info"> 低至约
-                        <em class="info1">0.27</em> 元/天
-                        <br><span class="info2">12</span>个月会员
-                    </p>
-                </div>
-                <dl class="card-info fl">
-                    <dt>为您赋能，轻松管理社区论坛网站1000+</dt>
-                    <dd>支持5个网站的数据分发</dd>
-                    <dd>10个网站的自动化帐号注册 <a style="color:#56d357;">注册说明>></a></dd>
-                    <dd>次数限制：<em class="card-price-deadline">无限次分发</em></dd>
-                    <dd>支持随时退款&nbsp;&nbsp;&nbsp;
-                        <a href="http://www.tbqbz.com" style="color:#56d357;"
-                           target="_blank">查看规则&gt;&gt;</a>
-                    </dd>
-                    <dd class="info-alert">*包含免费用户权限</dd>
-                </dl>
+            <p class="type-title">2.选择开通方式</p>
+            <div class="type-price-box" id="funcChrageView">
             </div>
-            <div class="type-card isSc" style="display: none;">
-                <div class="fl">
-                    <div class="card-icon"></div>
-                    <p class="card-price-info"> 低至约
-                        <em class="info1">0.27</em> 元/天
-                        <br><span class="info2">12</span>个月会员
-                    </p></div>
-                <dl class="card-info fl">
-                    <dt>为您赋能，轻松管理社区论坛网站5000+</dt>
-                    <dd>支持5000个网站数据分发</dd>
-                    <dd>5000个网站的自动化帐号注册 <a style="color:#fa9524;">注册说明>></a></dd>
-                    <dd>次数限制：<em class="card-price-deadline">无限次分发</em></dd>
-                    <dd>支持随时退款&nbsp;&nbsp;&nbsp;
-                        <a href="http://www.tbqbz.com" style="color:#fa9524;"
-                           target="_blank">查看规则&gt;&gt;</a>
-                    </dd>
-                    <dd class="info-alert">*包含免费用户权限</dd>
-                </dl>
-            </div>
-            <!--<div class="type-card isBoth" style="display: none;">
-                <div class="fl">
-                    <div class="card-icon"></div>
-                    <p class="card-price-info"> 低至约
-                        <em class="info1">0.51</em> 元/天
-                        <br><span class="info2">12</span>个月会员
-                    </p></div>
-                <dl class="card-info fl">
-                    <dt>支持所有设计类作品下载</dt>
-                    <dd>支持620万+「共享」「原创」素材
-                    </dd>
-                    <dd>次数限制：
-                        <em class="card-price-deadline">无限下载</em></dd>
-                    <dd>下载速度：
-                        <em>20M/s+</em> 极速*
-                    </dd>
-                    <dd>支持随时退款&nbsp;&nbsp;&nbsp; <a href="http://www.tbqbz.com/?m=links&amp;a=customer" style="color:#ff2c2c;"
-                                                    target="_blank">查看规则&gt;&gt;</a></dd>
-                    <dd class="info-alert">*包含免费用户权限</dd>
-                </dl>
-            </div>-->
+            <!--<img
+                   src="http://pic.qiantucdn.com/58pic/19/69/82/71358PIC7zU_1024.jpg!/fw/780/watermark/url/L3dhdGVybWFyay12MS4zLnBuZw==/align/center"
+                   style="width: 100%;height: 100%">
+          <div class="type-card isYc" style="display: block;">
+               <div class="fl">
+                   <div class="card-icon"></div>
+                   <p class="card-price-info"> 低至约
+                       <em class="info1">0.27</em> 元/天
+                       <br><span class="info2">12</span>个月会员
+                   </p>
+               </div>
+               <dl class="card-info fl">
+                   <dt>为您赋能，轻松管理社区论坛网站1000+</dt>
+                   <dd>支持5个网站的数据分发</dd>
+                   <dd>10个网站的自动化帐号注册 <a style="color:#56d357;">注册说明>></a></dd>
+                   <dd>次数限制：<em class="card-price-deadline">无限次分发</em></dd>
+                   <dd>支持随时退款&nbsp;&nbsp;&nbsp;
+                       <a href="http://www.tbqbz.com" style="color:#56d357;"
+                          target="_blank">查看规则&gt;&gt;</a>
+                   </dd>
+                   <dd class="info-alert">*包含免费用户权限</dd>
+               </dl>
+           </div>
+           <div class="type-card isSc" style="display: none;">
+               <div class="fl">
+                   <div class="card-icon"></div>
+                   <p class="card-price-info"> 低至约
+                       <em class="info1">0.27</em> 元/天
+                       <br><span class="info2">12</span>个月会员
+                   </p></div>
+               <dl class="card-info fl">
+                   <dt>为您赋能，轻松管理社区论坛网站5000+</dt>
+                   <dd>支持5000个网站数据分发</dd>
+                   <dd>5000个网站的自动化帐号注册 <a style="color:#fa9524;">注册说明>></a></dd>
+                   <dd>次数限制：<em class="card-price-deadline">无限次分发</em></dd>
+                   <dd>支持随时退款&nbsp;&nbsp;&nbsp;
+                       <a href="http://www.tbqbz.com" style="color:#fa9524;"
+                          target="_blank">查看规则&gt;&gt;</a>
+                   </dd>
+                   <dd class="info-alert">*包含免费用户权限</dd>
+               </dl>
+           </div>
+           <div class="type-card isBoth" style="display: none;">
+               <div class="fl">
+                   <div class="card-icon"></div>
+                   <p class="card-price-info"> 低至约
+                       <em class="info1">0.51</em> 元/天
+                       <br><span class="info2">12</span>个月会员
+                   </p></div>
+               <dl class="card-info fl">
+                   <dt>支持所有设计类作品下载</dt>
+                   <dd>支持620万+「共享」「原创」素材
+                   </dd>
+                   <dd>次数限制：
+                       <em class="card-price-deadline">无限下载</em></dd>
+                   <dd>下载速度：
+                       <em>20M/s+</em> 极速*
+                   </dd>
+                   <dd>支持随时退款&nbsp;&nbsp;&nbsp; <a href="http://www.tbqbz.com/?m=links&amp;a=customer" style="color:#ff2c2c;"
+                                                   target="_blank">查看规则&gt;&gt;</a></dd>
+                   <dd class="info-alert">*包含免费用户权限</dd>
+               </dl>
+           </div>-->
         </div>
     </div>
     <div class="qtPayNew-order">
@@ -205,23 +172,23 @@
         <p class="fr order-right">
             <a href="http://www.tbqbz.com/" target="_blank">支付了没反应？直接查看支付记录</a></p>
         <p class="order-center" style="color:#666666">应付金额：
-            <span class="order-price"><em class="o-p">98</em> 元</span>
+            <span class="order-price"><em class="o-p">--</em> 元</span>
             <span class="order-price-info" style="display: none;">已优惠10元</span>
-            <a href="javascript:;" class="j-agreement" style="color:#666666">《VIP服务协议》</a>
+            <a href="javascript:;" class="j-agreement" style="color:#666666">《工蜂小智服务协议》</a>
         </p>
     </div>
     <div class="qtPayNew-method clearfix">
         <div class="method-question">
             <i class="icon-que"></i>支付遇到问题
             <div class="question-nav">
-                <div class="nav-ques">
+                <!--<div class="nav-ques">
                     <a class="text" href="http://www.tbqbz.com/index.php?m=HelpCenter&amp;a=addQuestion" target="_blank">把您的问题告诉我们</a>
                     <p class="qt-btn btn-green-linear">
                         <a href="http://www.tbqbz.com/index.php?m=HelpCenter&amp;a=addQuestion"
                            target="_blank">提交问题</a>
                     </p>
                 </div>
-                <hr style="margin-bottom: 25px;border: 1px solid #f3f3f3;">
+                <hr style="margin-bottom: 25px;border: 1px solid #f3f3f3;">-->
                 <div class="nav-phone">
                     <div class="code fl"><b>客服QQ</b>
                         <div><img src="/app/static/img/wechat/ds-qq.jpg" style="padding:10px;"></div>
@@ -258,8 +225,6 @@
     </div>
     <div class="qtPayNew-others clearfix">
         <dl class="fl">
-            <dd>*「个人」功能清单参照<a>个人版功能</a></dd>
-            <dd>*「企业」功能清单参照<a>企业版功能</a></dd>
             <dd>* 数据分发的速度与用户所用网络亦有关系</dd>
             <dd>* 不同会员下载次数限制不同，无限下载不包含恶意非法内容的行为</dd>
             <dd>* 数据分发规则/批量帐号注册权益可由工蜂小智根据实际运营情况进行优化调整</dd>
@@ -283,39 +248,78 @@
         </div>
     </div>
 </div>
-<div class="qt-footer-other"> Copyright © 2017工蜂小智 <a href="http://www.miitbeian.gov.cn/" target="_blank">渝ICP备14004689号-1</a></div>
-<script id="memberTypeList" type="text/html">
-    {{#  layui.each(d, function(index, item){ }}
-    <a class="vip-item {{ item.code }} {{ item.default=='是'?'on':'' }}" data-tag="{{ item.code }}" data-id="{{ item.id }}">
-        <i class="vip-icon"></i>{{ item.name }}
-    </a>
-    {{#  }); }}
-</script>
-<script id="memberTypeCharge" type="text/html">
+<style>
+    .func-item {
+        overflow: hidden;
+        padding: 5px 0;
+        margin: 0 20px;
+        border-bottom: 1px solid #dadada;
+    }
 
-    {{#  layui.each(d.memberType, function(index, item){ }}
-    <div class="type-price  {{ item.code }}" style="{{ item.default=='是'?'display: block;':'display: none;' }}">
-        {{# layui.each(d.memberTypeCharge, function(index2, item2){ }}
-        {{# if(item2.member_type_id == item.id){ }}
-        <a href="javascript:;" class="price-item {{ item.default=='是' && item2.default=='是'?'on':'' }}"
-           data-id="{{ item2.id }}" data-price="{{ removeDecimalPoint(item2.price) }}"
+    .func-item img {
+        float: left;
+        width: 50px;
+        height: 50px;
+    }
+
+    .func-item .body {
+        margin-left: 70px;
+    }
+
+    .func-item .body label {
+        margin-bottom: 8px;
+        display: block;
+    }
+
+    .func-item .body label em {
+        color: #ff6000
+    }
+
+    .func-item .body p {
+        font-size: 14px;
+        color: #7b7b7b;
+        max-height: 95px;
+        overflow: hidden;
+    }
+</style>
+<div class="qt-footer-other"> Copyright © 2017工蜂小智 <a href="http://www.miitbeian.gov.cn/" target="_blank">渝ICP备14004689号-1</a></div>
+<script id="funcList" type="text/html">
+    <div style="max-height: 300px;overflow-y:auto ">
+        {{# layui.each(d, function(index, item){ }}
+        <!--<a class="vip-item {{ item.code }} {{ item.default=='是'?'on':'' }}" data-tag="{{ item.code }}" data-id="{{ item.id }}"
+           style="background: url({{ item.cover_img }}) no-repeat">
+            <i class="vip-icon"></i>{{ item.name }}
+        </a>-->
+        <div class="func-item" data-id="{{ item.id }}">
+            <img src="{{ item.cover_img }}">
+            <div class="body">
+                <label>{{ item.name }} <em>&yen{{ item.price }}/天</em></label>
+                <p>{{ item.remarks }}</p>
+            </div>
+        </div>
+        {{# }); }}
+    </div>
+</script>
+<script id="funcCharge" type="text/html">
+    <div class="type-price isYc">
+        {{# layui.each(d.funcCharge, function(index2, item2){ }}
+        <a href="javascript:;" class="price-item {{ item2.default=='是'?'on':'' }}"
+           data-id="{{ item2.id }}" data-price="{{ removeDecimalPoint((item2.days*d.sumPrice)+"") }}"
            data-default="{{ item2.default }}">
             {{# if(item2.tip != null && item2.tip != ""){ }}
             <em class="both-alert">{{ item2.tip }}</em>
             {{# } }}
-            <span class="price-info"><em>{{ removeDecimalPoint(item2.price) }}</em> 元/{{ item2.unit }}   </span>
-            <span class="price-deadline" style="text-decoration: line-through;">{{ removeDecimalPoint(item2.origin_price) }}元/{{ item2.unit }}  </span>
+            <span class="price-info"><em>{{ removeDecimalPoint((item2.days*d.sumPrice)+"") }}</em> 元/{{ item2.unit }}   </span>
+            <span class="price-deadline" style="text-decoration: line-through;">{{ removeDecimalPoint((item2.days*d.sumPrice)+"") }}元/{{ item2.unit }}  </span>
         </a>
-        {{# } }}
         {{# }); }}
     </div>
-    {{#  }); }}
 </script>
 
 <script src="/app/static/js/jquery.min.js"></script>
 <script src="/app/static/js/plugs/layui/layui.all.js"></script>
-<script src="/app/static/js/common.ajax.js"></script>
 <script src="/app/static/js/common.js"></script>
+<script src="/app/static/js/common.ajax.js"></script>
 <script src="/app/static/js/js.cookie.js"></script>
 <script src="/app/static/js/view/pay.js"></script>
 </body>

@@ -66,7 +66,8 @@
                 </div>
                 <div class="to-find">
                     <a href="http://127.0.0.1:8080/app/page/admin/account/member.html" target="_blank" class="tf-btn">立即体验</a>
-                    <a href="http://127.0.0.1:8080/app/page/admin/account/member.html" target="_blank" class="check-record">查看充值记录&gt;&gt;</a>
+                    <a href="http://127.0.0.1:8080/app/page/admin/account/member.html" target="_blank"
+                       class="check-record">查看充值记录&gt;&gt;</a>
                 </div>
             </div>
         </div>
@@ -83,7 +84,7 @@
         $(".tf-btn").click(function () {
             var backUrl = Cookies.get('backUrl') || false;
             if (backUrl) {
-                location.href = backUrl
+                location.href = decodeURIComponent(backUrl)
             } else {
                 location.href = "http://www.tbqbz.com/"
             }

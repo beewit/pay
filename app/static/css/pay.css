@@ -57,9 +57,10 @@
 
 .qtPayNew-type {
     overflow: hidden;
-    height: 330px;
+    min-height: 100px;
     background-color: #fff;
-    padding: 24px 26px
+    padding: 24px 26px;
+    padding-bottom: 0;
 }
 
 .qtPayNew-type .type-left {
@@ -68,7 +69,6 @@
 
 .qtPayNew-type .type-right {
     width: 620px;
-    height: 280px
 }
 
 .qtPayNew-type .type-title {
@@ -82,10 +82,11 @@
     width: 140px;
     height: 100px;
     display: inline-block;
-    margin-right: 20px;
+    margin-right: 5px;
     border: 1px solid #e5e5e5;
     text-align: center;
-    position: relative
+    position: relative;
+    margin-bottom: 10px;
 }
 
 .qtPayNew-type .type-vip .vip-item.on:after, .qtPayNew-type .type-price .price-item.on:after {

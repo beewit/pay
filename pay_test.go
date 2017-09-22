@@ -1,24 +1,27 @@
 package main
 
 import (
-	"fmt"
-	"github.com/beewit/beekit/utils/uhttp"
-	"time"
-	"testing"
-	"github.com/beewit/pay/alipay"
-	"encoding/json"
-	"github.com/beewit/pay/wxpay"
-	"strconv"
-	"github.com/beewit/beekit/utils"
-	"github.com/boombuler/barcode/qr"
-	"github.com/boombuler/barcode"
-	"os"
-	"image/png"
-	"github.com/beewit/pay/global"
-	"strings"
 	"bytes"
-	"github.com/beewit/beekit/utils/imgbase64"
+	"encoding/json"
+	"fmt"
+	"image/png"
+	"os"
+	"strconv"
+	"strings"
+	"testing"
+	"time"
+
+	"github.com/beewit/beekit/mysql"
+	"github.com/beewit/beekit/utils"
 	"github.com/beewit/beekit/utils/convert"
+	"github.com/beewit/beekit/utils/imgbase64"
+	"github.com/beewit/beekit/utils/uhttp"
+	"github.com/beewit/pay/alipay"
+	"github.com/beewit/pay/global"
+	"github.com/beewit/pay/handler"
+	"github.com/beewit/pay/wxpay"
+	"github.com/boombuler/barcode"
+	"github.com/boombuler/barcode/qr"
 )
 
 func TestPay(t *testing.T) {
@@ -236,4 +239,34 @@ func TestCreateQrCode(t *testing.T) {
 func TestFloat(t *testing.T) {
 	f := convert.MustFloat64("1008") / 100
 	println(convert.ToString(f))
+}
+
+func TestNofily(t *testing.T) {
+	flog := handler.UpdateOrderFuncStatus(5713168217883648, 0.1)
+	println(flog)
+}
+
+func TestTxInsertMap(t *testing.T) {
+	flog := false
+	global.DB.Tx(func(tx *mysql.SqlConnTransaction) {
+		m := map[string]interface{}{}
+		m["id"] = 123456789
+		m["account_id"] = 123456789
+		m["func_id"] = 501
+		m["expiration_time"] = utils.CurrentTime()
+		m["ct_time"] = utils.CurrentTime()
+		m["ut_time"] = utils.CurrentTime()
+		_, err := tx.InsertMap("account_func", m)
+		if err != nil {
+			global.Log.Error(err.Error())
+			panic(err)
+		}
+		flog = true
+	}, func(err error) {
+		if err != nil {
+			global.Log.Error("保存失败，%v", err)
+			flog = false
+		}
+	})
+	println(flog)
 }

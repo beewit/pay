@@ -1,11 +1,14 @@
 package global
 
 import (
+	"encoding/json"
+	"fmt"
+
 	"github.com/beewit/beekit/conf"
 	"github.com/beewit/beekit/log"
 	"github.com/beewit/beekit/mysql"
 	"github.com/beewit/beekit/redis"
-	"fmt"
+	"github.com/beewit/beekit/utils/convert"
 )
 
 var (
@@ -33,3 +36,37 @@ var (
 	FilesPath   = fmt.Sprintf("%v", CFG.Get("files.path"))
 	FilesDoMain = fmt.Sprintf("%v", CFG.Get("files.doMain"))
 )
+
+type Account struct {
+	ID       int64  `json:"id"`
+	Nickname string `json:"nickname"`
+	Photo    string `json:"photo"`
+	Mobile   string `json:"mobile"`
+	Status   string `json:"status"`
+}
+
+func ToByteAccount(b []byte) *Account {
+	var rp = new(Account)
+	err := json.Unmarshal(b[:], &rp)
+	if err != nil {
+		Log.Error(err.Error())
+		return nil
+	}
+	return rp
+}
+
+func ToMapAccount(m map[string]interface{}) *Account {
+	b := convert.ToMapByte(m)
+	if b == nil {
+		return nil
+	}
+	return ToByteAccount(b)
+}
+
+func ToInterfaceAccount(m interface{}) *Account {
+	b := convert.ToInterfaceByte(m)
+	if b == nil {
+		return nil
+	}
+	return ToByteAccount(b)
+}

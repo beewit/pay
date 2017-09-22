@@ -82,7 +82,7 @@
         $(".tf-btn").click(function () {
             var backUrl = Cookies.get('backUrl') || false;
             if (backUrl) {
-                location.href = backUrl
+                location.href = decodeURIComponent(backUrl)
             } else {
                 location.href = "http://www.tbqbz.com/"
             }

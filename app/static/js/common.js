@@ -17,7 +17,7 @@ layui.use('layer', function () {
     });
 });
 $(function () {
-    if (location.hostname != "localhost") {
+    if (location.hostname != "localhost" && location.hostname != "127.0.0.1") {
         $(document).bind("contextmenu", function () {
             return false;
         });
@@ -164,6 +164,27 @@ var ExecuteIframeMethod = function (methodName, param1, param2, param3) {
     }
 };
 
+
+function LoadScript(url, callback) {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    if (typeof(callback) != "undefined") {
+        if (script.readyState) {
+            script.onreadystatechange = function () {
+                if (script.readyState == "loaded" || script.readyState == "complete") {
+                    script.onreadystatechange = null;
+                    callback();
+                }
+            };
+        } else {
+            script.onload = function () {
+                callback();
+            };
+        }
+    }
+    script.src = url;
+    document.body.appendChild(script);
+}
 
 var LinkUrl = {
     Request: function (name) {

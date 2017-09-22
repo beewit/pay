@@ -1,36 +1,54 @@
 var laytpl;
-var mtTpl = memberTypeList.innerHTML, memberTypeView = document.getElementById('memberTypeView');
-var mtcTpl = memberTypeCharge.innerHTML, memberTypeChrageView = document.getElementById('memberTypeChrageView');
-layui.use('laytpl', function () {
-    laytpl = layui.laytpl;
-    loadMemberType();
-});
+var backUrl, token, fid;
+var mtTpl = funcList.innerHTML, funcView = document.getElementById('funcView');
+var fcTpl = funcCharge.innerHTML, funcChrageView = document.getElementById('funcChrageView');
+
+
 $(function () {
-    var backUrl = LinkUrl.Request('backUrl') || false;
+    backUrl = LinkUrl.Request('backUrl') || false;
     if (backUrl) {
         Cookies.set('backUrl', backUrl, {expires: 7})
     }
-    $(".type-vip").delegate(".vip-item", "click", function () {
-        var t = $(this).attr("data-tag");
-        $(".vip-item").removeClass("on");
-        $(this).addClass("on");
-        $(".type-price").hide();
-        $("." + t + ".type-price").show();
-        $("." + t + ".type-price").removeClass("on");
-        $(".price-item").removeClass("on")
-        $("." + t + ".type-price a[data-default=是]").addClass("on");
-        $(".type-card").hide();
-        $("." + t + ".type-card").show();
-        $("." + t).show();
-        createOrder("支付宝")
-        createOrder("微信")
+    token = LinkUrl.Request('token') || false;
+    if (token) {
+        Cookies.set('token', token, {expires: 7})
+    } else {
+        token = Cookies.get('token')
+    }
+
+    fid = LinkUrl.Request('fid') || "";
+    if (fid == "") {
+        if (backUrl) {
+            location.href = decodeURIComponent(backUrl)
+        } else {
+            location.href = "http://www.tbqbz.com/"
+        }
+    }
+
+    layui.use('laytpl', function () {
+        laytpl = layui.laytpl;
+        checkLogin()
     });
+
+    // $(".type-vip").delegate(".vip-item", "click", function () {
+    //     var t = $(this).attr("data-tag");
+    //     $(".vip-item").removeClass("on");
+    //     $(this).addClass("on");
+    //     $(".type-price").hide();
+    //     $("." + t + ".type-price").show();
+    //     $("." + t + ".type-price").removeClass("on");
+    //     $(".price-item").removeClass("on")
+    //     $("." + t + ".type-price a[data-default=是]").addClass("on");
+    //     $(".type-card").hide();
+    //     $("." + t + ".type-card").show();
+    //     $("." + t).show();
+    //     createOrderComm()
+    // });
 
     $(".type-price-box").delegate(".price-item", "click", function () {
         $(this).parent().find(".price-item").removeClass("on")
         $(this).addClass("on")
-        createOrder("支付宝")
-        createOrder("微信")
+        createOrderComm()
     });
 
     $(".j-agreement").click(function () {
@@ -50,32 +68,55 @@ $(function () {
 
 });
 
-function loadMemberType() {
+function checkLogin() {
+    loadFunc();
+}
+
+function loadFunc() {
     $.ajax({
         load_tip: false,
         url: "/member/type",
+        data: {fid: fid},
         success: function (d) {
             if (d.ret == 200) {
-                laytpl(mtTpl).render(d.data.memberType, function (html) {
-                    memberTypeView.innerHTML = html;
+                if (d.data.account != null && d.data.account != undefined) {
+                    $("#username-logined").html(d.data.account.nickname);
+                    $("#id").html(d.data.account.id);
+                }
+                laytpl(mtTpl).render(d.data.func, function (html) {
+                    funcView.innerHTML = html;
                 });
-                laytpl(mtcTpl).render(d.data, function (html) {
-                    memberTypeChrageView.innerHTML = html;
+                var sumPrice = 0;
+                $.each(d.data.func, function (i, item) {
+                    sumPrice += parseFloat((item.price || 0))
+                })
+                d.data.sumPrice = sumPrice
+                laytpl(fcTpl).render(d.data, function (html) {
+                    funcChrageView.innerHTML = html;
                 });
-                createOrder("支付宝")
-                createOrder("微信")
+                createOrderComm()
             }
         }
     });
 }
 
+
+function createOrderComm() {
+    if (token) {
+        createOrder("支付宝")
+        createOrder("微信")
+    } else {
+        layer.msg("请登陆后操作", {icon: 0})
+    }
+}
+
 var ct;
 var i = 0;
 
+
 function createOrder(pt) {
-    var $vip = $(".vip-item.on");
-    var vipId = $vip.attr("data-id")
-    var $price = $(".type-price." + $vip.attr("data-tag")).find(".price-item.on");
+    var funcIds = fid
+    var $price = $(".type-price").find(".price-item.on");
     var priceId = $price.attr("data-id");
     var price = $price.attr("data-price");
     $(".order-price .o-p").html(price);
@@ -83,8 +124,8 @@ function createOrder(pt) {
     $("#wechat-code").attr("src", "");
     $.ajax({
         load_tip: false,
-        url: "/order/create",
-        data: {mtId: vipId, mtcId: priceId, pt: pt},
+        url: "/order/create/list",
+        data: {funcId: funcIds, fcId: priceId, pt: pt},
         success: function (d) {
             if (d.ret == 200) {
                 var tradeNo = d.data.tradeNo;
@@ -111,22 +152,14 @@ function queryOrder(tradeNo) {
             data: {tradeNo: tradeNo},
             success: function (d) {
                 if (d.ret == 200) {
-                    if (d.data.type == "会员套餐") {
-                        if (d.data.member_type_id == 1) {
-                            location.href = "/app/page/notify/success.html"
+                    layer.msg("支付成功", {icon: 1}, function () {
+                        var backUrl = Cookies.get('backUrl') || false;
+                        if (backUrl) {
+                            location.href = decodeURIComponent(backUrl)
                         } else {
-                            location.href = "/app/page/notify/success-company.html"
+                            location.href = "http://www.tbqbz.com/"
                         }
-                    } else {
-                        layer.msg("支付成功", {icon: 1}, function () {
-                            var backUrl = Cookies.get('backUrl') || false;
-                            if (backUrl) {
-                                location.href = backUrl
-                            } else {
-                                location.href = "http://www.tbqbz.com/"
-                            }
-                        })
-                    }
+                    })
                 }
                 else if (d.ret == 404) {
                     timeOut(tradeNo)

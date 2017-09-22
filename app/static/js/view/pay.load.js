@@ -23,9 +23,9 @@ function queryOrder() {
         data: {tradeNo: tradeNo},
         success: function (d) {
             if (d.ret == 200) {
-                if (d.data.type == "会员套餐") {
-                    if (d.data.member_type_id == 1) {
-                        location.href = "/app/page/notify/success.html"
+                if (d.data.type == "功能开通") {
+                    if (d.data.func_id == 1) {
+                        location.href = "/app/page/notify/success.html?tradeNo=" + tradeNo
                     } else {
                         location.href = "/app/page/notify/success-company.html"
                     }

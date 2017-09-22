@@ -1,5 +1,5 @@
 (function ($) {
-    var player = layer;//window === window.top ? layer : (parent.window === parent.window.top) ? parent.layer : (parent.parent.window === parent.parent.window.top ? parent.parent.layer : parent.parent.parent.layer);
+    var player = layer;
     var _ajax = $.ajax;
     $.ajax = function (options) {
         var defaults = {
@@ -12,12 +12,11 @@
         };
         var opt = $.extend(defaults, options);
         var fn = {
-            error: function (XMLHttpRequest, textStatus, errorThrown) {
-            },
-            success: function (data, textStatus) {
-            },
+            error: function (XMLHttpRequest, textStatus, errorThrown) {},
+            success: function (data, textStatus) {},
             beforeSend: function (XMLHttpRequest) {
-                //XMLHttpRequest.setRequestHeader('Authorization', "Bearer " + opt.token);
+                XMLHttpRequest.setRequestHeader('key', "valid-key");
+                XMLHttpRequest.setRequestHeader('Authorization', "valid-key");
             },
             complete: function (XMLHttpRequest, textStatus) {
 
@@ -31,9 +30,15 @@
         }
         var loadi;
         if (opt.load_tip) {
-            loadi = player.msg('正在加载..', {icon: 6, time: -1})
+            loadi = player.msg('正在加载..', {
+                icon: 6,
+                time: -1
+            })
         }
         var _opt = $.extend(opt, {
+            beforeSend: function (XMLHttpRequest) {
+                fn.beforeSend(XMLHttpRequest);
+            },
             error: function (XMLHttpRequest, textStatus, errorThrown) {
                 if (opt.err_tip) {
                     player.alert('网络异常刷新重试', {
@@ -49,9 +54,15 @@
                 if (opt.err_tip) {
                     player.close(loadi);
                     if (json.ret != 200 && json.ret != 404 && json.ret != undefined && json.ret != null) {
-                        if (json.ret == 402) {
-                            player.msg('登陆已失效..', {icon: 0, time: 1500}, function () {
-                                parent.location.href = json.data;
+                        if (json.ret == 401) {
+                            player.msg(json.msg, {
+                                icon: 0,
+                                time: 1500
+                            }, function () {
+                                var backUrl = Cookies.get("backUrl");
+                                if (backUrl) {
+                                    parent.location.href = decodeURIComponent(backUrl);
+                                }
                             });
                         } else {
                             //错误统一拦截提示
