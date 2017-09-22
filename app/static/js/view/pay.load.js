@@ -23,22 +23,14 @@ function queryOrder() {
         data: {tradeNo: tradeNo},
         success: function (d) {
             if (d.ret == 200) {
-                if (d.data.type == "功能开通") {
-                    if (d.data.func_id == 1) {
-                        location.href = "/app/page/notify/success.html?tradeNo=" + tradeNo
+                layer.msg("支付成功", {icon: 1}, function () {
+                    var backUrl = Cookies.get('backUrl') || false;
+                    if (backUrl) {
+                        location.href = backUrl
                     } else {
-                        location.href = "/app/page/notify/success-company.html"
+                        location.href = "http://www.tbqbz.com/"
                     }
-                } else {
-                    layer.msg("支付成功", {icon: 1}, function () {
-                        var backUrl = Cookies.get('backUrl') || false;
-                        if (backUrl) {
-                            location.href = backUrl
-                        } else {
-                            location.href = "http://www.tbqbz.com/"
-                        }
-                    })
-                }
+                })
             }
             else if (d.ret == 404) {
                 if (i < 900) {

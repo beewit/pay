@@ -242,7 +242,7 @@ func TestFloat(t *testing.T) {
 }
 
 func TestNofily(t *testing.T) {
-	flog := handler.UpdateOrderFuncStatus(5713168217883648, 0.1)
+	flog := handler.UpdateOrderFuncStatus(5775462386451456, 0.01)
 	println(flog)
 }
 
@@ -269,4 +269,16 @@ func TestTxInsertMap(t *testing.T) {
 		}
 	})
 	println(flog)
+}
+
+func TestFor(t *testing.T) {
+	for i := 0; i < 10; i++ {
+		for j := 0; j < 10; j++ {
+			if i == j {
+				println("跳出循环 - 》 I：", i,"J：", j)
+				break
+			}
+			println("I：", i,"J：", j)
+		}
+	}
 }

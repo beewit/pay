@@ -290,7 +290,7 @@ func UpdateOrderFuncStatus(id int64, price float64) bool {
 			global.Log.Error(errMsg)
 			panic(errMsg)
 		}
-		if convert.MustFloat64(order["price"]) != price {
+		if convert.MustFloat64(order["pay_price"]) != price {
 			errMsg := "订单支付金额不一致"
 			global.Log.Warning(errMsg)
 			panic(errMsg)
@@ -298,21 +298,10 @@ func UpdateOrderFuncStatus(id int64, price float64) bool {
 		}
 		var x int64
 		var err error
-		funcId, errFuncId := convert.ToInt64(order["func_id"])
-		if errFuncId != nil {
-			global.Log.Error(ids + "订单付款的开通功能异常：" + errFuncId.Error())
-			panic(err)
-		}
 
 		accId, errAccId := convert.ToInt64(order["account_id"])
 		if errAccId != nil {
 			global.Log.Error(ids + "订单付款的帐号异常：" + errAccId.Error())
-			panic(err)
-		}
-
-		days, errDays := convert.ToInt(order["days"])
-		if errDays != nil {
-			global.Log.Error(ids + "订单付款-功能开通：" + errDays.Error())
 			panic(err)
 		}
 		sql := "UPDATE order_payment SET pay_status=?,pay_time=? WHERE id=?"
@@ -328,41 +317,69 @@ func UpdateOrderFuncStatus(id int64, price float64) bool {
 		}
 
 		var daysTime time.Time
-		accFunc := getAccountFuncId(accId, funcId)
-		if accFunc != nil {
-			//新增用户开通功能清单数据
-			expirTimeStr, errExpirTime := time.Parse("2006-01-02 15:04:05", convert.ToString(accFunc["expiration_time"]))
-			if errExpirTime != nil {
-				global.Log.Error(convert.ToString(accId) + "会员的过期时间错误：" + errExpirTime.Error())
+		iw, _ := utils.NewIdWorker(1)
+		//订单开通功能
+		orderFunc := getOrderFuncId(id)
+		//帐号已开通功能记录
+		accFunc := getAccountFuncByAccId(accId)
+		acMaps := []map[string]interface{}{}
+		for i := 0; i < len(orderFunc); i++ {
+
+			flog := false
+			days := convert.MustInt(orderFunc[i]["days"])
+			funcId := orderFunc[i]["func_id"]
+
+			for j := 0; j < len(accFunc); j++ {
+				if accFunc[j]["func_id"] == orderFunc[i]["func_id"] {
+					if accFunc[j]["expiration_time"] != nil {
+						expirTimeStr, errExpirTime := time.Parse("2006-01-02 15:04:05", convert.ToString(accFunc[j]["expiration_time"]))
+						if errExpirTime != nil {
+							global.Log.Error(convert.ToString(accId) + "会员的过期时间错误：" + errExpirTime.Error())
+							panic(err)
+						}
+						if expirTimeStr.After(time.Now()) {
+							//未到期的续费
+							daysTime = expirTimeStr.AddDate(0, 0, days)
+						} else {
+							//已到期的续费
+							daysTime = time.Now().AddDate(0, 0, days)
+						}
+					} else {
+						//无到期时间
+						daysTime = time.Now().AddDate(0, 0, days)
+					}
+					flog = true
+					break
+				}
+			}
+			if flog {
+				//修改
+				sql = "UPDATE account_func SET expiration_time=?,ut_time=? WHERE account_id=? AND func_id=?"
+				x, err = tx.Update(sql, utils.FormatTime(daysTime), utils.CurrentTime(), accId, funcId)
+				if err != nil {
+					global.Log.Error(err.Error())
+					panic(err)
+				}
+			} else {
+				//添加
+				daysTime = time.Now().AddDate(0, 0, days)
+				id, _ := iw.NextId()
+				m := make(map[string]interface{})
+				m["id"] = id
+				m["account_id"] = accId
+				m["func_id"] = orderFunc[i]["func_id"]
+				m["expiration_time"] = utils.FormatTime(daysTime)
+				m["ct_time"] = utils.CurrentTime()
+				m["ut_time"] = utils.CurrentTime()
+				acMaps = append(acMaps, m)
+			}
+		}
+		if len(acMaps) > 0 {
+			x, err = tx.InsertMapList("account_func", acMaps)
+			if err != nil {
+				global.Log.Error(err.Error())
 				panic(err)
 			}
-			if expirTimeStr.After(time.Now()) {
-				//未到期的续费
-				daysTime = expirTimeStr.AddDate(0, 0, days)
-			} else {
-				//已到期的续费
-				daysTime = time.Now().AddDate(0, 0, days)
-			}
-			sql = "UPDATE account_func SET expiration_time=?,ut_time=? WHERE account_id=? AND func_id=?"
-			x, err = tx.Update(sql, utils.FormatTime(daysTime), utils.CurrentTime(), accId, funcId)
-		} else {
-			//修改已经开通过的清单数据
-			//个人升级为企业，或第一次开通
-			daysTime = time.Now().AddDate(0, 0, days)
-			iw, _ := utils.NewIdWorker(1)
-			id, _ := iw.NextId()
-			m := make(map[string]interface{})
-			m["id"] = id
-			m["account_id"] = accId
-			m["func_id"] = funcId
-			m["expiration_time"] = utils.FormatTime(daysTime)
-			m["ct_time"] = utils.CurrentTime()
-			m["ut_time"] = utils.CurrentTime()
-			_, err = tx.InsertMap("account_func", m)
-		}
-		if err != nil {
-			global.Log.Error(err.Error())
-			panic(err)
 		}
 		flog = true
 		errMsg = "修改订单成功：" + ids
@@ -389,9 +406,10 @@ func getAccountId(id int64) map[string]interface{} {
 	return rows[0]
 }
 
-func getAccountFuncId(accId, funcId int64) map[string]interface{} {
-	sql := "SELECT * FROM account_func WHERE account_id=? AND func_id=? LIMIT 1"
-	rows, err := global.DB.Query(sql, accId, funcId)
+//该帐号开通的功能项目
+func getAccountFuncByAccId(accId int64) []map[string]interface{} {
+	sql := "SELECT * FROM account_func WHERE account_id=?"
+	rows, err := global.DB.Query(sql, accId)
 	if err != nil {
 		global.Log.Error(err.Error())
 		return nil
@@ -399,12 +417,24 @@ func getAccountFuncId(accId, funcId int64) map[string]interface{} {
 	if len(rows) < 1 {
 		return nil
 	}
-	return rows[0]
+	return rows
+}
+
+func getOrderFuncId(orderId int64) []map[string]interface{} {
+	sql := "SELECT * FROM order_payment_record_func WHERE order_payment_id=?"
+	rows, err := global.DB.Query(sql, orderId)
+	if err != nil {
+		global.Log.Error(err.Error())
+		return nil
+	}
+	if len(rows) < 1 {
+		return nil
+	}
+	return rows
 }
 
 func getOrderFuncById(id int64) map[string]interface{} {
-	sql := "SELECT o.*,om.func_id,om.func_name,om.func_charge_id,om.days FROM order_payment o LEFT JOIN " +
-		"order_payment_record_func om ON o.id=om.order_payment_id WHERE o.id=? LIMIT 1"
+	sql := "SELECT * FROM order_payment o WHERE o.id=? LIMIT 1"
 	rows, err := global.DB.Query(sql, id)
 	if err != nil {
 		global.Log.Error(err.Error())
