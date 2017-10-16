@@ -19,9 +19,9 @@ $(function () {
     fid = LinkUrl.Request('fid') || "";
     if (fid == "") {
         if (backUrl) {
-            location.href = decodeURIComponent(backUrl)
+            parent.location.href = decodeURIComponent(backUrl)
         } else {
-            location.href = "http://www.tbqbz.com/"
+            parent.location.href = "http://www.tbqbz.com/"
         }
     }
 
@@ -62,7 +62,7 @@ $(function () {
     $(".alipay_t").click(function () {
         var href = $(this).attr("data-href");
         if (href) {
-            location.href = href
+            parent.location.href = href
         }
     });
 
@@ -155,9 +155,9 @@ function queryOrder(tradeNo) {
                     layer.msg("支付成功", {icon: 1}, function () {
                         var backUrl = Cookies.get('backUrl') || false;
                         if (backUrl) {
-                            location.href = decodeURIComponent(backUrl)
+                            parent.location.href = decodeURIComponent(backUrl)
                         } else {
-                            location.href = "http://www.tbqbz.com/"
+                            parent.location.href = "http://www.tbqbz.com/"
                         }
                     })
                 }

@@ -472,7 +472,7 @@ func getOrderCode(mt []map[string]interface{}, fc map[string]interface{}, accId 
 
 	totalPrice := convert.MustFloat64(fc["days"]) * sumPrice
 	//测试使用
-	totalPrice = 0.01
+	//totalPrice = 0.01
 
 	m["id"] = tradeNo
 	m["account_id"] = accId
