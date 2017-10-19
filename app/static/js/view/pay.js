@@ -46,11 +46,9 @@ $(function () {
     // });
 
     $(".type-price-box").delegate(".price-item", "click", function () {
-        if (!$(this).hasClass("on")) {
-            $(this).parent().find(".price-item").removeClass("on")
-            $(this).addClass("on")
-            createOrderComm()
-        }
+        $(this).parent().find(".price-item").removeClass("on")
+        $(this).addClass("on")
+        createOrderComm()
     });
 
     $(".j-agreement").click(function () {
@@ -67,10 +65,6 @@ $(function () {
             parent.location.href = href
         }
     });
-
-    setTimeout(function () {
-        timeOut();
-    }, 3000)
 
 });
 
@@ -109,10 +103,8 @@ function loadFunc() {
 
 function createOrderComm() {
     if (token) {
-        setTimeout(function () {
-            createOrder("微信")
-        }, 100)
         createOrder("支付宝")
+        createOrder("微信")
     } else {
         layer.msg("请登陆后操作", {icon: 0})
     }
@@ -121,7 +113,6 @@ function createOrderComm() {
 var ct;
 var i = 0;
 
-var PayTypeOrder = {}
 
 function createOrder(pt) {
     var funcIds = fid
@@ -129,11 +120,8 @@ function createOrder(pt) {
     var priceId = $price.attr("data-id");
     var price = $price.attr("data-price");
     $(".order-price .o-p").html(price);
-    if (pt == "支付宝") {
-        $("#alipay-code").attr("src", "");
-    } else {
-        $("#wechat-code").attr("src", "");
-    }
+    $("#alipay-code").attr("src", "");
+    $("#wechat-code").attr("src", "");
     $.ajax({
         load_tip: false,
         url: "/order/create/list",
@@ -148,11 +136,8 @@ function createOrder(pt) {
                 } else if (pt == "微信") {
                     $("#wechat-code").attr("src", d.data.codeUrl);
                 }
-                eval('PayTypeOrder.' + pt + '=tradeNo');
-                // clearTimeout(ct)
-                // setTimeout(function () {
-                //     queryOrder(tradeNo, pt);
-                // })
+                clearTimeout(ct)
+                queryOrder(tradeNo);
             }
         }
     });
@@ -177,23 +162,20 @@ function queryOrder(tradeNo) {
                     })
                 }
                 else if (d.ret == 404) {
-
+                    timeOut(tradeNo)
                 }
             }
         });
     }
 }
 
-function timeOut() {
-    $.each(PayTypeOrder, function (i, item) {
-        queryOrder(item, i)
-        console.log(i + "：" + item);
-    })
+function timeOut(tradeNo) {
     //2个小时后不再轮询
     if (i < 3600 * 2) {
         ct = setTimeout(function () {
             i++
-            timeOut();
+            queryOrder(tradeNo)
+            console.log(tradeNo)
         }, 1000)
     }
 }
