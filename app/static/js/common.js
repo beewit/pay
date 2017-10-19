@@ -17,15 +17,15 @@ layui.use('layer', function () {
     });
 });
 $(function () {
-    if (location.hostname != "localhost" && location.hostname != "127.0.0.1") {
-        $(document).bind("contextmenu", function () {
-            return false;
-        });
-        $(document).bind("selectstart", function () {
-            return false;
-        });
-        //$("body").attr("oncontextmenu", "return false").attr("onselectstart", "return false").attr("oncopy", "alert('不支持复制！');return false;");
-    }
+    //if (location.hostname != "localhost" && location.hostname != "127.0.0.1") {
+    // $(document).bind("contextmenu", function () {
+    //     return false;
+    // });
+    // $(document).bind("selectstart", function () {
+    //     return false;
+    // });
+    //$("body").attr("oncontextmenu", "return false").attr("onselectstart", "return false").attr("oncopy", "alert('不支持复制！');return false;");
+    // }
 });
 
 function openWin($obj, win_name) {

@@ -88,30 +88,6 @@ func (t Trade) Prepay(args Sign) (Prepay, error) {
 
 // Verify verify
 func (t Trade) Verify(args Notice, key string) error {
-	//args, err := query.Values(n)
-	//if err != nil {
-	//	return err
-	//}
-	//rSign := args.Get("sign")
-	//args.Del("sign")
-	//
-	//var keys = make([]string, 0, 0)
-	//for key, value := range args {
-	//	if len(value) > 0 {
-	//		keys = append(keys, key)
-	//	}
-	//}
-	//
-	//sort.Strings(keys)
-	//
-	//var pList = make(map[string]string)
-	//for _, key := range keys {
-	//	var value = args.Get(key)
-	//	if len(value) > 0 {
-	//		pList[key] = value
-	//	}
-	//}
-
 	sign, err := t.Sign(args, key)
 	if err != nil {
 		return err
