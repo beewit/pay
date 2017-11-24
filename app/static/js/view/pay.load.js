@@ -28,7 +28,7 @@ function queryOrder() {
                     if (backUrl) {
                         location.href = backUrl
                     } else {
-                        location.href = "http://www.tbqbz.com/"
+                        location.href = "http://www.9ee3.com/"
                     }
                 })
             }

@@ -82,7 +82,7 @@ func CreateBatchFuncOrder(c echo.Context) error {
 	acc := global.ToInterfaceAccount(c.Get("account"))
 	accID := acc.ID
 	accName := acc.Nickname
-	flog, tradeNo, codeUrl, getUrl := getOrderCode(mt, fc, accID, accName, pt, c.RealIP())
+	flog, tradeNo, codeUrl, getUrl := getOrderCode(mt, fc, accID, accName, pt, c.RealIP(),true)
 	if flog {
 		return utils.Success(c, "创建订单成功", map[string]interface{}{"codeUrl": codeUrl, "getUrl": getUrl, "tradeNo": tradeNo})
 	}
@@ -108,14 +108,45 @@ func CreateFuncOrder(c echo.Context) error {
 		return utils.Error(c, "选择的开通功能不存在", nil)
 	}
 	if fc == nil {
-		return utils.Error(c, "选择的功能开通不存在", nil)
+		return utils.Error(c, "选择的功能开通方式不存在", nil)
 	}
 	acc := global.ToInterfaceAccount(c.Get("account"))
 	accID := acc.ID
 	accName := acc.Nickname
-	flog, tradeNo, codeUrl, getUrl := getOrderCode(mt, fc, accID, accName, pt, c.RealIP())
+	flog, tradeNo, codeUrl, getUrl := getOrderCode(mt, fc, accID, accName, pt, c.RealIP(),true)
 	if flog {
 		return utils.Success(c, "创建订单成功", map[string]interface{}{"codeUrl": codeUrl, "getUrl": getUrl, "tradeNo": tradeNo})
+	}
+	return utils.Error(c, "创建订单失败", nil)
+}
+
+//只是创建订单、不创建支付二维码
+func CreateOrder(c echo.Context) error {
+	funcIdStr := c.FormValue("funcId")
+	fcIdStr := c.FormValue("fcId")
+	pt := c.FormValue("pt")
+	if funcIdStr == "" || !utils.IsValidNumber(funcIdStr) {
+		return utils.Error(c, "请正确选择开通功能", nil)
+	}
+	if fcIdStr == "" || !utils.IsValidNumber(fcIdStr) {
+		return utils.Error(c, "请正确选择功能开通", nil)
+	}
+	funcId, _ := strconv.ParseInt(funcIdStr, 10, 64)
+	fcId, _ := strconv.ParseInt(fcIdStr, 10, 64)
+	mt := getFunc(funcId)
+	fc := getFuncCharge(fcId)
+	if mt == nil {
+		return utils.Error(c, "选择的开通功能不存在", nil)
+	}
+	if fc == nil {
+		return utils.Error(c, "选择的功能开通方式不存在", nil)
+	}
+	acc := global.ToInterfaceAccount(c.Get("account"))
+	accID := acc.ID
+	accName := acc.Nickname
+	flog, tradeNo, _, _ := getOrderCode(mt, fc, accID, accName, pt, c.RealIP(),false)
+	if flog {
+		return utils.Success(c, "创建订单成功", map[string]interface{}{"tradeNo": tradeNo})
 	}
 	return utils.Error(c, "创建订单失败", nil)
 }
@@ -317,7 +348,6 @@ func UpdateOrderFuncStatus(id int64, price float64) bool {
 		}
 
 		var daysTime time.Time
-		iw, _ := utils.NewIdWorker(1)
 		//订单开通功能
 		orderFunc := getOrderFuncId(id)
 		//帐号已开通功能记录
@@ -363,9 +393,8 @@ func UpdateOrderFuncStatus(id int64, price float64) bool {
 			} else {
 				//添加
 				daysTime = time.Now().AddDate(0, 0, days)
-				id, _ := iw.NextId()
 				m := make(map[string]interface{})
-				m["id"] = id
+				m["id"] = utils.ID()
 				m["account_id"] = accId
 				m["func_id"] = orderFunc[i]["func_id"]
 				m["expiration_time"] = utils.FormatTime(daysTime)
@@ -446,19 +475,15 @@ func getOrderFuncById(id int64) map[string]interface{} {
 	return rows[0]
 }
 
-func getOrderCode(mt []map[string]interface{}, fc map[string]interface{}, accId int64, accName, payType, ip string) (bool, int64, string,
+func getOrderCode(mt []map[string]interface{}, fc map[string]interface{}, accId int64, accName, payType, ip string,isPayQrCode bool) (bool, int64, string,
 	string) {
 	m := make(map[string]interface{})
-	iw, _ := utils.NewIdWorker(1)
-	tradeNo, _ := iw.NextId()
-
+	tradeNo  := utils.ID()
 	var sumPrice float64 = 0
-
 	funcList := make([]map[string]interface{}, len(mt))
 	for i := 0; i < len(mt); i++ {
 		mr := make(map[string]interface{})
-		mrId, _ := iw.NextId()
-		mr["id"] = mrId
+		mr["id"] = utils.ID()
 		mr["order_payment_id"] = tradeNo
 		mr["func_id"] = mt[i]["id"]
 		mr["func_name"] = mt[i]["name"]
@@ -472,7 +497,7 @@ func getOrderCode(mt []map[string]interface{}, fc map[string]interface{}, accId 
 
 	totalPrice := convert.MustFloat64(fc["days"]) * sumPrice
 	//测试使用
-	//totalPrice = 0.01
+	totalPrice = 0.01
 
 	m["id"] = tradeNo
 	m["account_id"] = accId
@@ -503,26 +528,30 @@ func getOrderCode(mt []map[string]interface{}, fc map[string]interface{}, accId 
 	})
 
 	if flog {
-		var codeUrl, getUrl string
-		var payErr error
-		if payType == enum.PAY_TYPE_ALIPAY {
-			codeUrl, getUrl, payErr = alipay.GetPayUrl(
-				"工蜂小智 - 功能开通",
-				"工蜂小智 - 功能开通",
-				convert.ToString(tradeNo),
-				totalPrice)
-		} else if payType == enum.PAY_TYPE_WECHAT {
-			codeUrl, payErr = wxpay.GetPayUrl(
-				"工蜂小智 - 功能开通",
-				"工蜂小智 - 功能开通",
-				convert.ToString(tradeNo),
-				totalPrice)
+		if isPayQrCode {
+			var codeUrl, getUrl string
+			var payErr error
+			if payType == enum.PAY_TYPE_ALIPAY {
+				codeUrl, getUrl, payErr = alipay.GetPayUrl(
+					"工蜂小智 - 功能开通",
+					"工蜂小智 - 功能开通",
+					convert.ToString(tradeNo),
+					totalPrice)
+			} else if payType == enum.PAY_TYPE_WECHAT {
+				codeUrl, payErr = wxpay.GetPayUrl(
+					"工蜂小智 - 功能开通",
+					"工蜂小智 - 功能开通",
+					convert.ToString(tradeNo),
+					totalPrice)
+			}
+			if payErr != nil {
+				return false, 0, "", ""
+			}
+			updateOrderUrl(tradeNo, codeUrl, getUrl)
+			return flog, tradeNo, codeUrl, getUrl
+		}else{
+			return flog, tradeNo, "", ""
 		}
-		if payErr != nil {
-			return false, 0, "", ""
-		}
-		updateOrderUrl(tradeNo, codeUrl, getUrl)
-		return flog, tradeNo, codeUrl, getUrl
 	}
 	return false, 0, "", ""
 }

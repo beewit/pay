@@ -20,6 +20,7 @@ func Start() {
 	e.POST("/order/query", handler.GetOrderById, handler.Filter)
 	e.POST("/order/create", handler.CreateFuncOrder, handler.Filter)
 	e.POST("/order/create/list", handler.CreateBatchFuncOrder, handler.Filter)
+	e.POST("/order/noqrcode/create",handler.CreateOrder,handler.Filter)
 	e.POST("/member/type", handler.GetFuncAndCharge, handler.Filter)
 	e.POST("/alipay/notify", handler.AlipayNotify)
 	e.POST("/wechat/notify", handler.WechatNotify)

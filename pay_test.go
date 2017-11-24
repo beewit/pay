@@ -22,6 +22,7 @@ import (
 	"github.com/beewit/pay/wxpay"
 	"github.com/boombuler/barcode"
 	"github.com/boombuler/barcode/qr"
+	"github.com/beewit/beekit/utils/enum"
 )
 
 func TestPay(t *testing.T) {
@@ -137,9 +138,7 @@ func TestQrCode(t *testing.T) {
 
 	// Scale the barcode to 200x200 pixels
 	qrCode, _ = barcode.Scale(qrCode, 300, 300)
-	iw, _ := utils.NewIdWorker(1)
-	id, _ := iw.NextId()
-	path := fmt.Sprintf("%s%s%v.png", global.FilesPath, "qrcode/test/", id)
+	path := fmt.Sprintf("%s%s%v.png", global.FilesPath, "qrcode/test/", utils.ID())
 	// create the output file
 
 	file, flog := utils.CreateFile(path)
@@ -192,10 +191,7 @@ func TestSubString(t *testing.T) {
 }
 
 func TestCreateFile(t *testing.T) {
-	iw, _ := utils.NewIdWorker(1)
-	id, _ := iw.NextId()
-
-	path := fmt.Sprintf("%s%s%v.png", global.FilesPath, "qrcode/alipay/", id)
+	path := fmt.Sprintf("%s%s%v.png", global.FilesPath, "qrcode/alipay/", utils.ID())
 	println(path)
 	_, flog := utils.CreateFile(path)
 	println(flog)
@@ -275,10 +271,47 @@ func TestFor(t *testing.T) {
 	for i := 0; i < 10; i++ {
 		for j := 0; j < 10; j++ {
 			if i == j {
-				println("跳出循环 - 》 I：", i,"J：", j)
+				println("跳出循环 - 》 I：", i, "J：", j)
 				break
 			}
-			println("I：", i,"J：", j)
+			println("I：", i, "J：", j)
 		}
 	}
+}
+
+func TestCreateOrder(t *testing.T) {
+	for i := 0; i < 10; i++ {
+		go func() {
+			println(utils.ID())
+		}()
+	}
+}
+
+func createOrder() {
+	m := make(map[string]interface{})
+	tradeNo  := utils.ID()
+	//测试使用
+	//totalPrice = 0.01
+
+	m["id"] = tradeNo
+	m["account_id"] = 1
+	m["account_name"] = "工蜂小智"
+	m["type"] = enum.PAY_TYPE_FUNC
+	m["pay_type"] = "微信"
+	m["pay_price"] = 0.01
+	m["pay_status"] = enum.PAY_STATUS_NOT
+	m["status"] = enum.NORMAL
+	m["ct_time"] = utils.CurrentTime()
+	m["ct_ip"] = "123"
+	global.DB.Tx(func(tx *mysql.SqlConnTransaction) {
+		_, err := tx.InsertMap("order_payment", m)
+		if err != nil {
+			panic(err)
+		}
+	}, func(err error) {
+		if err != nil {
+			global.Log.Error("保存失败，%v", err)
+
+		}
+	})
 }

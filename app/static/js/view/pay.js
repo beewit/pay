@@ -21,7 +21,7 @@ $(function () {
         if (backUrl) {
             parent.location.href = decodeURIComponent(backUrl)
         } else {
-            parent.location.href = "http://www.tbqbz.com/"
+            parent.location.href = "http://www.9ee3.com/"
         }
     }
 
@@ -113,6 +113,7 @@ function createOrderComm() {
 var ct;
 var i = 0;
 
+var w_tradeNo,a_tradeNo;
 
 function createOrder(pt) {
     var funcIds = fid
@@ -133,10 +134,11 @@ function createOrder(pt) {
                     //启动定时查询任务
                     $("#alipay-code").attr("src", d.data.codeUrl);
                     $(".alipay_t").attr("data-href", d.data.getUrl);
+                    a_tradeNo=tradeNo;
                 } else if (pt == "微信") {
                     $("#wechat-code").attr("src", d.data.codeUrl);
+                    w_tradeNo=tradeNo;
                 }
-                clearTimeout(ct)
                 queryOrder(tradeNo);
             }
         }
@@ -145,7 +147,7 @@ function createOrder(pt) {
 
 
 function queryOrder(tradeNo) {
-    if (tradeNo) {
+    if (tradeNo==a_tradeNo || tradeNo==w_tradeNo) {
         $.ajax({
             load_tip: false,
             url: "/order/query",
@@ -157,7 +159,7 @@ function queryOrder(tradeNo) {
                         if (backUrl) {
                             parent.location.href = decodeURIComponent(backUrl)
                         } else {
-                            parent.location.href = "http://www.tbqbz.com/"
+                            parent.location.href = "http://www.9ee3.com/"
                         }
                     })
                 }
