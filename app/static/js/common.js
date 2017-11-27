@@ -364,7 +364,14 @@ function decrypt(str, pwd) {
     return enc_str;
 }
 
-function removeDecimalPoint(dp) {
+function removeDecimalPoint(dp, disc) {
+    if (disc) {
+        if (parseFloat(disc) > 0) {
+            dp = dp * disc;
+        }
+    }
+    dp = Math.round(dp);
+    dp = dp + "";
     if (dp) {
         return dp.replace(".00", "")
     }

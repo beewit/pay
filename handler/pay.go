@@ -82,7 +82,7 @@ func CreateBatchFuncOrder(c echo.Context) error {
 	acc := global.ToInterfaceAccount(c.Get("account"))
 	accID := acc.ID
 	accName := acc.Nickname
-	flog, tradeNo, codeUrl, getUrl := getOrderCode(mt, fc, accID, accName, pt, c.RealIP(),true)
+	flog, tradeNo, _, codeUrl, getUrl := getOrderCode(mt, fc, accID, accName, pt, c.RealIP(), true)
 	if flog {
 		return utils.Success(c, "创建订单成功", map[string]interface{}{"codeUrl": codeUrl, "getUrl": getUrl, "tradeNo": tradeNo})
 	}
@@ -113,7 +113,7 @@ func CreateFuncOrder(c echo.Context) error {
 	acc := global.ToInterfaceAccount(c.Get("account"))
 	accID := acc.ID
 	accName := acc.Nickname
-	flog, tradeNo, codeUrl, getUrl := getOrderCode(mt, fc, accID, accName, pt, c.RealIP(),true)
+	flog, tradeNo, _, codeUrl, getUrl := getOrderCode(mt, fc, accID, accName, pt, c.RealIP(), true)
 	if flog {
 		return utils.Success(c, "创建订单成功", map[string]interface{}{"codeUrl": codeUrl, "getUrl": getUrl, "tradeNo": tradeNo})
 	}
@@ -121,10 +121,12 @@ func CreateFuncOrder(c echo.Context) error {
 }
 
 //只是创建订单、不创建支付二维码
-func CreateOrder(c echo.Context) error {
+func CreateAppOrder(c echo.Context) error {
 	funcIdStr := c.FormValue("funcId")
 	fcIdStr := c.FormValue("fcId")
 	pt := c.FormValue("pt")
+	body := c.FormValue("body")
+	subject := c.FormValue("subject")
 	if funcIdStr == "" || !utils.IsValidNumber(funcIdStr) {
 		return utils.Error(c, "请正确选择开通功能", nil)
 	}
@@ -144,9 +146,38 @@ func CreateOrder(c echo.Context) error {
 	acc := global.ToInterfaceAccount(c.Get("account"))
 	accID := acc.ID
 	accName := acc.Nickname
-	flog, tradeNo, _, _ := getOrderCode(mt, fc, accID, accName, pt, c.RealIP(),false)
+	flog, tradeNo, totalPrice, _, _ := getOrderCode(mt, fc, accID, accName, pt, c.RealIP(), false)
 	if flog {
-		return utils.Success(c, "创建订单成功", map[string]interface{}{"tradeNo": tradeNo})
+		if pt == enum.PAY_TYPE_WECHAT {
+			defray, err := wxpay.GetAppPayPars(body, subject, convert.ToString(tradeNo), totalPrice)
+			if err != nil {
+				return utils.Error(c, "创建支付签名失败", nil)
+			}
+			return utils.Success(c, "创建订单成功", map[string]interface{}{
+				"tradeNo":    tradeNo,
+				"totalPrice": totalPrice,
+				"sign":       defray.Sign,
+				"appId":      global.WechatAppId,
+				"partnerId":  global.WechatMchID,
+				"prepayId":   defray.PrepayID,
+				"noncestr":   defray.NonceStr,
+				"timeStamp":  defray.TimeStamp})
+		} else if pt == enum.PAY_TYPE_ALIPAY {
+			sign, err := alipay.GetAPPSign(alipay.Request{
+				Body:        body,
+				Subject:     subject,
+				OutTradeNo:  convert.ToString(tradeNo),
+				TotalAmount: totalPrice,
+				ProductCode: "QUICK_MSECURITY_PAY",
+				TimeExpress: "1d",
+			})
+			if err != nil {
+				return utils.Error(c, "创建支付签名失败", nil)
+			}
+			return utils.Success(c, "创建订单成功", map[string]interface{}{"tradeNo": tradeNo, "totalPrice": totalPrice, "sign": sign})
+		} else {
+			return utils.Error(c, "当前仅支持微信和支付宝支付", nil)
+		}
 	}
 	return utils.Error(c, "创建订单失败", nil)
 }
@@ -475,10 +506,10 @@ func getOrderFuncById(id int64) map[string]interface{} {
 	return rows[0]
 }
 
-func getOrderCode(mt []map[string]interface{}, fc map[string]interface{}, accId int64, accName, payType, ip string,isPayQrCode bool) (bool, int64, string,
+func getOrderCode(mt []map[string]interface{}, fc map[string]interface{}, accId int64, accName, payType, ip string, isPayQrCode bool) (bool, int64, float64, string,
 	string) {
 	m := make(map[string]interface{})
-	tradeNo  := utils.ID()
+	tradeNo := utils.ID()
 	var sumPrice float64 = 0
 	funcList := make([]map[string]interface{}, len(mt))
 	for i := 0; i < len(mt); i++ {
@@ -495,7 +526,14 @@ func getOrderCode(mt []map[string]interface{}, fc map[string]interface{}, accId 
 		sumPrice += convert.MustFloat64(mr["price"])
 	}
 
+	discount := convert.MustFloat64(fc["discount"])
+
 	totalPrice := convert.MustFloat64(fc["days"]) * sumPrice
+	if discount > 0 {
+		totalPrice = totalPrice * discount
+
+	}
+	totalPrice = convert.MustFloat64(fmt.Sprintf("%.0f", totalPrice))
 	//测试使用
 	totalPrice = 0.01
 
@@ -545,13 +583,13 @@ func getOrderCode(mt []map[string]interface{}, fc map[string]interface{}, accId 
 					totalPrice)
 			}
 			if payErr != nil {
-				return false, 0, "", ""
+				return false, 0, 0, "", ""
 			}
 			updateOrderUrl(tradeNo, codeUrl, getUrl)
-			return flog, tradeNo, codeUrl, getUrl
-		}else{
-			return flog, tradeNo, "", ""
+			return flog, tradeNo, totalPrice, codeUrl, getUrl
+		} else {
+			return flog, tradeNo, totalPrice, "", ""
 		}
 	}
-	return false, 0, "", ""
+	return false, 0, 0, "", ""
 }

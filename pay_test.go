@@ -280,16 +280,12 @@ func TestFor(t *testing.T) {
 }
 
 func TestCreateOrder(t *testing.T) {
-	for i := 0; i < 10; i++ {
-		go func() {
-			println(utils.ID())
-		}()
-	}
+	println(fmt.Sprintf("%.0f", 1.4))
 }
 
 func createOrder() {
 	m := make(map[string]interface{})
-	tradeNo  := utils.ID()
+	tradeNo := utils.ID()
 	//测试使用
 	//totalPrice = 0.01
 

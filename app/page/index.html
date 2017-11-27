@@ -304,13 +304,13 @@
     <div class="type-price isYc">
         {{# layui.each(d.funcCharge, function(index2, item2){ }}
         <a href="javascript:;" class="price-item {{ item2.default=='是'?'on':'' }}"
-           data-id="{{ item2.id }}" data-price="{{ removeDecimalPoint((parseFloat(item2.days)*parseFloat(d.sumPrice))+"") }}"
+           data-id="{{ item2.id }}" data-price="{{ removeDecimalPoint(parseFloat(item2.days)*parseFloat(d.sumPrice),item2.discount) }}"
            data-default="{{ item2.default }}">
             {{# if(item2.tip != null && item2.tip != ""){ }}
             <em class="both-alert">{{ item2.tip }}</em>
             {{# } }}
-            <span class="price-info"><em>{{ removeDecimalPoint(((parseFloat(item2.days)*parseFloat(d.sumPrice)))+"") }}</em> 元/{{ item2.unit }}   </span>
-            <span class="price-deadline" style="text-decoration: line-through;">{{ removeDecimalPoint(((parseFloat(item2.days)*parseFloat(d.sumPrice)))+"") }}元/{{ item2.unit }}  </span>
+            <span class="price-info"><em>{{ removeDecimalPoint(parseFloat(item2.days)*parseFloat(d.sumPrice),item2.discount) }}</em> 元/{{ item2.unit }}   </span>
+            <span class="price-deadline" style="text-decoration: line-through;">{{ removeDecimalPoint(parseFloat(item2.days)*parseFloat(d.sumPrice),null) }}元/{{ item2.unit }}  </span>
         </a>
         {{# }); }}
     </div>

@@ -133,7 +133,7 @@ func generateTimestampStr() string {
 }
 
 func GetPayUrl(body, subject, tradeNo string, amount float64) (string, string, error) {
-	codeUrl, err := sign(Request{
+	codeUrl, err := GetSign(Request{
 		Body:        body,
 		Subject:     subject,
 		OutTradeNo:  tradeNo,
@@ -146,7 +146,7 @@ func GetPayUrl(body, subject, tradeNo string, amount float64) (string, string, e
 	if err != nil {
 		return "", "", err
 	}
-	getUrl, err2 := sign(Request{
+	getUrl, err2 := GetSign(Request{
 		Body:        body,
 		Subject:     subject,
 		OutTradeNo:  tradeNo,
@@ -157,11 +157,12 @@ func GetPayUrl(body, subject, tradeNo string, amount float64) (string, string, e
 	if err2 != nil {
 		return "", "", err
 	}
-	return codeUrl, getUrl, nil
+	return fmt.Sprintf("%s?%s", "https://openapi.alipay.com/gateway.do", codeUrl),
+		fmt.Sprintf("%s?%s", "https://openapi.alipay.com/gateway.do", getUrl), nil
 }
 
 //请求参数qr_pay_mode设置为4 返回二维码
-func sign(args Request) (string, error) {
+func GetSign(args Request) (string, error) {
 	body, err := json.Marshal(args)
 	if err != nil {
 		return "", err
@@ -181,5 +182,30 @@ func sign(args Request) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	return fmt.Sprintf("%s?%s", "https://openapi.alipay.com/gateway.do", sign, ), nil
+	return sign, nil
+}
+
+
+//请求参数qr_pay_mode设置为4 返回二维码
+func GetAPPSign(args Request) (string, error) {
+	body, err := json.Marshal(args)
+	if err != nil {
+		return "", err
+	}
+	// 签名
+	sign, err := NewTrade().Sign(Sign{
+		AppID:      global.AlipayAppId,
+		Method:     "alipay.trade.app.pay",
+		ReturnURL:  global.AlipayReturnURL,
+		Charset:    "utf-8",
+		SignType:   "RSA2",
+		TimeStamp:  generateTimestampStr(),
+		Version:    "1.0",
+		NotifyURL:  global.AlipayNotifyURL,
+		BizContent: string(body),
+	}, global.AlipayPrivatePath)
+	if err != nil {
+		return "", err
+	}
+	return sign, nil
 }

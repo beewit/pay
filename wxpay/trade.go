@@ -21,7 +21,6 @@ import (
 	"image/png"
 	"bytes"
 	"github.com/beewit/beekit/utils/imgbase64"
-
 )
 
 // Trade trade
@@ -187,6 +186,49 @@ func GetCodeUrl(args Request) (string, error) {
 		return "", err
 	}
 	return prepay.CodeURL, nil
+}
+
+func GetAppPayPars(body, subject, tradeNo string, amount float64) (*Defray, error) {
+	args := Request{
+		Body:       body,
+		Attach:     subject,
+		OutTradeNo: tradeNo,
+		ProductID:  tradeNo,
+		TotalFee:   (int)(amount * 100),
+	}
+	sign := Sign{
+		AppID:          global.WechatAppId,
+		MchID:          global.WechatMchID,
+		NonceStr:       GenerateNonceStr(),
+		TradeType:      "APP",
+		SpbillCreateIP: utils.GetIp(),
+		NotifyURL:      global.WechatNotifyURL,
+		Request:        args,
+	}
+	str, err := NewTrade().Sign(sign, global.WechatApiKey)
+	if err != nil {
+		return nil, err
+	}
+	sign.Sign = str
+	prepay, err := NewTrade().Prepay(sign)
+	if err != nil {
+		return nil, err
+	}
+	//再次生成签名
+	defray := Defray{
+		AppID:     global.WechatAppId,
+		PartnerID: global.WechatMchID,
+		PrepayID:  prepay.PrepayID,
+		Package:   "Sign=WXPay",
+		NonceStr:  GenerateNonceStr(),
+		TimeStamp: strconv.FormatInt(time.Now().Unix(), 10),
+	}
+	str, err = NewTrade().Sign(defray, global.WechatApiKey)
+	if err != nil {
+		return nil, err
+	}
+	defray.Sign = str
+	return &defray, nil
 }
 
 func GetPayUrl(body, subject, tradeNo string, amount float64) (string, error) {
