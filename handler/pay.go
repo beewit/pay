@@ -385,9 +385,12 @@ func UpdateOrderFuncStatus(id int64, price float64) bool {
 		accFunc := getAccountFuncByAccId(accId)
 		acMaps := []map[string]interface{}{}
 		for i := 0; i < len(orderFunc); i++ {
-
 			flog := false
 			days := convert.MustInt(orderFunc[i]["days"])
+			giveDays := convert.MustInt(orderFunc[i]["give_days"])
+			if giveDays > 0 {
+				days += giveDays
+			}
 			funcId := orderFunc[i]["func_id"]
 
 			for j := 0; j < len(accFunc); j++ {
@@ -397,6 +400,7 @@ func UpdateOrderFuncStatus(id int64, price float64) bool {
 						if errExpirTime != nil {
 							global.Log.Error(convert.ToString(accId) + "会员的过期时间错误：" + errExpirTime.Error())
 							panic(err)
+							return
 						}
 						if expirTimeStr.After(time.Now()) {
 							//未到期的续费

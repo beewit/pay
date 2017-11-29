@@ -281,6 +281,15 @@
         max-height: 95px;
         overflow: hidden;
     }
+    .price-give{
+        font-size: 12px;
+        position: absolute;
+        top: 0;
+        right: 0;
+        background: #a661ff;
+        padding: 1px 5px;
+        color: #fff;
+    }
 </style>
 <div class="qt-footer-other"> Copyright © 2017工蜂小智 <a href="http://www.miitbeian.gov.cn/" target="_blank">渝ICP备14004689号-1</a></div>
 <script id="funcList" type="text/html">
@@ -310,6 +319,9 @@
             <em class="both-alert">{{ item2.tip }}</em>
             {{# } }}
             <span class="price-info"><em>{{ removeDecimalPoint(parseFloat(item2.days)*parseFloat(d.sumPrice),item2.discount) }}</em> 元/{{ item2.unit }}   </span>
+            {{# if(item2.give_days>0){ }}
+                <span class="price-give">赠送{{ item2.give_days }}天 </span>
+            {{# } }}
             <span class="price-deadline" style="text-decoration: line-through;">{{ removeDecimalPoint(parseFloat(item2.days)*parseFloat(d.sumPrice),null) }}元/{{ item2.unit }}  </span>
         </a>
         {{# }); }}
