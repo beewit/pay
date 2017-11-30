@@ -14,6 +14,7 @@ import (
 	"github.com/beewit/beekit/mysql"
 	"github.com/beewit/beekit/utils"
 	"github.com/beewit/beekit/utils/convert"
+	"github.com/beewit/beekit/utils/enum"
 	"github.com/beewit/beekit/utils/imgbase64"
 	"github.com/beewit/beekit/utils/uhttp"
 	"github.com/beewit/pay/alipay"
@@ -22,7 +23,6 @@ import (
 	"github.com/beewit/pay/wxpay"
 	"github.com/boombuler/barcode"
 	"github.com/boombuler/barcode/qr"
-	"github.com/beewit/beekit/utils/enum"
 )
 
 func TestPay(t *testing.T) {
@@ -235,6 +235,13 @@ func TestCreateQrCode(t *testing.T) {
 func TestFloat(t *testing.T) {
 	f := convert.MustFloat64("1008") / 100
 	println(convert.ToString(f))
+}
+
+func TestAddDay(t *testing.T) {
+	expirTimeStr, _ := time.Parse("2006-01-02 15:04:05", "2017-11-29 00:00:00")
+	println(utils.FormatTime(expirTimeStr))
+	println(utils.FormatTime(expirTimeStr.AddDate(0, 0, 90)))
+	println(utils.FormatTime(expirTimeStr.AddDate(0, 0, 95)))
 }
 
 func TestNofily(t *testing.T) {

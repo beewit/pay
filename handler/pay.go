@@ -525,6 +525,7 @@ func getOrderCode(mt []map[string]interface{}, fc map[string]interface{}, accId 
 		mr["price"] = mt[i]["price"]
 		mr["func_charge_id"] = fc["id"]
 		mr["days"] = fc["days"]
+		mr["give_days"] = fc["give_days"]
 		funcList[i] = mr
 
 		sumPrice += convert.MustFloat64(mr["price"])
@@ -539,7 +540,7 @@ func getOrderCode(mt []map[string]interface{}, fc map[string]interface{}, accId 
 	}
 	totalPrice = convert.MustFloat64(fmt.Sprintf("%.0f", totalPrice))
 	//测试使用
-	totalPrice = 0.01
+	//totalPrice = 0.01
 
 	m["id"] = tradeNo
 	m["account_id"] = accId
