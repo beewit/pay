@@ -33,6 +33,11 @@ var (
 	WechatApiKey    = fmt.Sprintf("%v", CFG.Get("wechat.apiKey"))
 	WechatNotifyURL = fmt.Sprintf("%v", CFG.Get("wechat.notifyURL"))
 
+	WechatAPPAppId     = fmt.Sprintf("%v", CFG.Get("wechatAPP.appId"))
+	WechatAPPMchID     = fmt.Sprintf("%v", CFG.Get("wechatAPP.mchID"))
+	WechatAPPApiKey    = fmt.Sprintf("%v", CFG.Get("wechatAPP.apiKey"))
+	WechatAPPNotifyURL = fmt.Sprintf("%v", CFG.Get("wechatAPP.notifyURL"))
+
 	FilesPath   = fmt.Sprintf("%v", CFG.Get("files.path"))
 	FilesDoMain = fmt.Sprintf("%v", CFG.Get("files.doMain"))
 )

@@ -69,16 +69,16 @@ type (
 
 	// Defray defray
 	Defray struct {
-		AppID     string `json:"appId,omitempty" url:"appId,omitempty"`         // 是 公众账号ID
+		AppID     string `json:"appid,omitempty" url:"appid,omitempty"`         // 是 公众账号ID
 		Package   string `json:"package,omitempty" url:"package,omitempty"`     // 是 app:Sign=WXPay,公众号:prepay_id=xxx
-		NonceStr  string `json:"nonceStr,omitempty" url:"nonceStr,omitempty"`   // 是 随机字符串
-		TimeStamp string `json:"timeStamp,omitempty" url:"timeStamp,omitempty"` // 是 时间戳
-		SignType  string `json:"signType,omitempty" url:"signType,omitempty"`   // 是 签名类型（公众号）
-		PaySign   string `json:"paySign,omitempty" url:"paySign,omitempty"`     // 是 支付类型（公众号）
+		NonceStr  string `json:"noncestr,omitempty" url:"noncestr,omitempty"`   // 是 随机字符串
+		TimeStamp string `json:"timestamp,omitempty" url:"timestamp,omitempty"` // 是 时间戳
+		//SignType  string `json:"signType,omitempty" url:"signType,omitempty"`   // 是 签名类型（公众号）
+		//PaySign   string `json:"paySign,omitempty" url:"paySign,omitempty"`     // 是 支付类型（公众号）
 		PartnerID string `json:"partnerid,omitempty" url:"partnerid,omitempty"` // 是 商家ID （app）
 		PrepayID  string `json:"prepayid,omitempty" url:"prepayid,omitempty"`   // 是 预支付ID（app）
 		Sign      string `json:"sign,omitempty" url:"sign,omitempty"`           // 是 签名 (app)
-		CodeUrl   string `json:"code_url,omitempty" url:"code_url,omitempty"`   //二维码
+		//CodeUrl   string `json:"code_url,omitempty" url:"code_url,omitempty"`   //二维码
 	}
 	// Notice notice
 	Notice struct {

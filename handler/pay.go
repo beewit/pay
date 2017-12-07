@@ -122,20 +122,19 @@ func CreateFuncOrder(c echo.Context) error {
 
 //只是创建订单、不创建支付二维码
 func CreateAppOrder(c echo.Context) error {
+	body := c.FormValue("body")
+	subject := c.FormValue("subject")
 	funcIdStr := c.FormValue("funcId")
 	fcIdStr := c.FormValue("fcId")
 	pt := c.FormValue("pt")
-	body := c.FormValue("body")
-	subject := c.FormValue("subject")
-	if funcIdStr == "" || !utils.IsValidNumber(funcIdStr) {
+	if funcIdStr == "" {
 		return utils.Error(c, "请正确选择开通功能", nil)
 	}
 	if fcIdStr == "" || !utils.IsValidNumber(fcIdStr) {
 		return utils.Error(c, "请正确选择功能开通", nil)
 	}
-	funcId, _ := strconv.ParseInt(funcIdStr, 10, 64)
 	fcId, _ := strconv.ParseInt(fcIdStr, 10, 64)
-	mt := getFunc(funcId)
+	mt := getFuncList(funcIdStr)
 	fc := getFuncCharge(fcId)
 	if mt == nil {
 		return utils.Error(c, "选择的开通功能不存在", nil)
@@ -148,7 +147,7 @@ func CreateAppOrder(c echo.Context) error {
 	accName := acc.Nickname
 	flog, tradeNo, totalPrice, _, _ := getOrderCode(mt, fc, accID, accName, pt, c.RealIP(), false)
 	if flog {
-		if pt == enum.PAY_TYPE_WECHAT {
+		if pt == enum.PAY_TYPE_WECHATAPP {
 			defray, err := wxpay.GetAppPayPars(body, subject, convert.ToString(tradeNo), totalPrice)
 			if err != nil {
 				return utils.Error(c, "创建支付签名失败", nil)
@@ -157,8 +156,8 @@ func CreateAppOrder(c echo.Context) error {
 				"tradeNo":    tradeNo,
 				"totalPrice": totalPrice,
 				"sign":       defray.Sign,
-				"appId":      global.WechatAppId,
-				"partnerId":  global.WechatMchID,
+				"appId":      global.WechatAPPAppId,
+				"partnerId":  global.WechatAPPMchID,
 				"prepayId":   defray.PrepayID,
 				"noncestr":   defray.NonceStr,
 				"timeStamp":  defray.TimeStamp})

@@ -197,15 +197,15 @@ func GetAppPayPars(body, subject, tradeNo string, amount float64) (*Defray, erro
 		TotalFee:   (int)(amount * 100),
 	}
 	sign := Sign{
-		AppID:          global.WechatAppId,
-		MchID:          global.WechatMchID,
+		AppID:          global.WechatAPPAppId,
+		MchID:          global.WechatAPPMchID,
 		NonceStr:       GenerateNonceStr(),
 		TradeType:      "APP",
 		SpbillCreateIP: utils.GetIp(),
-		NotifyURL:      global.WechatNotifyURL,
+		NotifyURL:      global.WechatAPPNotifyURL,
 		Request:        args,
 	}
-	str, err := NewTrade().Sign(sign, global.WechatApiKey)
+	str, err := NewTrade().Sign(sign, global.WechatAPPApiKey)
 	if err != nil {
 		return nil, err
 	}
@@ -216,14 +216,14 @@ func GetAppPayPars(body, subject, tradeNo string, amount float64) (*Defray, erro
 	}
 	//再次生成签名
 	defray := Defray{
-		AppID:     global.WechatAppId,
-		PartnerID: global.WechatMchID,
+		AppID:     global.WechatAPPAppId,
+		PartnerID: global.WechatAPPMchID,
 		PrepayID:  prepay.PrepayID,
 		Package:   "Sign=WXPay",
 		NonceStr:  GenerateNonceStr(),
 		TimeStamp: strconv.FormatInt(time.Now().Unix(), 10),
 	}
-	str, err = NewTrade().Sign(defray, global.WechatApiKey)
+	str, err = NewTrade().Sign(defray, global.WechatAPPApiKey)
 	if err != nil {
 		return nil, err
 	}
