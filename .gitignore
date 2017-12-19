@@ -26,3 +26,4 @@ rsa_alipay_public_key.pem
 rsa_public_key.pem
 Build pay
 Build_pay_go_and_run
+app/files/*
