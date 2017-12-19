@@ -134,7 +134,7 @@ func TestConvert(t *testing.T) {
 }
 
 func TestUpdateOrder(t *testing.T) {
-	flog := handler.UpdateOrderFuncStatus(125985189636608000, 0.1)
+	flog := handler.UpdateOrderFuncStatus(125985189636608000, 0.1,"")
 	println(flog)
 }
 

@@ -221,7 +221,7 @@ func AlipayNotify(c echo.Context) error {
 		global.Log.Error(err.Error())
 		return c.HTML(http.StatusOK, "error")
 	}
-	UpdateOrderFuncStatus(convert.MustInt64(c.FormValue("out_trade_no")), convert.MustFloat64(c.FormValue("total_amount")))
+	UpdateOrderFuncStatus(convert.MustInt64(c.FormValue("out_trade_no")), convert.MustFloat64(c.FormValue("total_amount")), c.RealIP())
 	return c.HTML(http.StatusOK, "success")
 }
 
@@ -260,7 +260,7 @@ func WechatNotify(c echo.Context) error {
 		}
 		return c.XML(http.StatusOK, wr)
 	}
-	UpdateOrderFuncStatus(convert.MustInt64(args.OutTradeNo), convert.MustFloat64(args.TotalFee)/100)
+	UpdateOrderFuncStatus(convert.MustInt64(args.OutTradeNo), convert.MustFloat64(args.TotalFee)/100, c.RealIP())
 	wr := &wxpay.Response{
 		ReturnCode: "SUCCESS",
 	}
@@ -334,7 +334,7 @@ func updateOrderUrl(id int64, codeUrl, getUrl string) int64 {
 	return x
 }
 
-func UpdateOrderFuncStatus(id int64, price float64) bool {
+func UpdateOrderFuncStatus(id int64, price float64, ip string) bool {
 	flog := false
 	global.DB.Tx(func(tx *mysql.SqlConnTransaction) {
 		errMsg := ""
@@ -365,8 +365,9 @@ func UpdateOrderFuncStatus(id int64, price float64) bool {
 			global.Log.Error(ids + "订单付款的帐号异常：" + errAccId.Error())
 			panic(err)
 		}
-		sql := "UPDATE order_payment SET pay_status=?,pay_time=? WHERE id=?"
-		x, err = tx.Update(sql, enum.PAY_STATUS_END, utils.CurrentTime(), id)
+
+		sql := "UPDATE order_payment SET pay_status=?,pay_time=?,pay_ip=? WHERE id=?"
+		x, err = tx.Update(sql, enum.PAY_STATUS_END, utils.CurrentTime(), ip, id)
 		if err != nil {
 			global.Log.Error(err.Error())
 			panic(err)
@@ -384,6 +385,15 @@ func UpdateOrderFuncStatus(id int64, price float64) bool {
 		accFunc := getAccountFuncByAccId(accId)
 		acMaps := []map[string]interface{}{}
 		for i := 0; i < len(orderFunc); i++ {
+
+			//测试数据只能为指定账户才能使用
+			var testFuncChargeId int64 = 7
+			if convert.MustInt64(orderFunc[i]["func_charge_id"]) == testFuncChargeId && accId != 122068319091036160 {
+				global.Log.Error("非指定账户不能使用测试功能支付，支付无效")
+				panic(errMsg)
+				return
+			}
+
 			flog := false
 			days := convert.MustInt(orderFunc[i]["days"])
 			giveDays := convert.MustInt(orderFunc[i]["give_days"])
@@ -444,12 +454,57 @@ func UpdateOrderFuncStatus(id int64, price float64) bool {
 				panic(err)
 			}
 		}
+
+		//查询当前用户是否有邀请者，如果有则进行支付金额按比例进行返利，四舍五入
+		orderAccount := getAccountId(accId)
+		if orderAccount != nil && orderAccount["share_account_id"] != nil && convert.MustInt64(orderAccount["share_account_id"]) > 0 {
+			//对分享者加入钱包记录和钱包增加 share_account_id
+			shareAccountId := convert.MustInt64(orderAccount["share_account_id"])
+			shareAccount := getAccountId(shareAccountId)
+			//判断是否从该用户出获得过邀请返利
+			shareRebateWalletLog := getShareRebateWalletLog(shareAccountId, accId, enum.WALLET_REBATE)
+			if shareRebateWalletLog != nil {
+				global.Log.Warning("已经获得过邀请初次返利了，暂不重复下单返利")
+			}
+			if shareAccount != nil && shareRebateWalletLog == nil {
+				//邀请返利，暂定百分之五
+				changeMoney := convert.MustFloat64(fmt.Sprintf("%.0f", price*0.05))
+				accountWallet := getAccountWalletByAccId(shareAccountId)
+				var money = changeMoney
+				if accountWallet != nil {
+					money = convert.MustFloat64(accountWallet["money"]) + changeMoney
+				}
+				sql := "REPLACE INTO account_wallet(id,account_id,money,last_time,last_ip)VALUES(?,?,?,?,?)"
+				_, err = tx.Insert(sql, utils.ID(), shareAccountId, money, utils.CurrentTime(), ip)
+				if err != nil {
+					global.Log.Error(fmt.Sprintf("订单通知，邀请者获得返利时修改钱包金额失败，错误：%s", err.Error()))
+					panic(err)
+				}
+				_, err = tx.InsertMap("account_wallet_log", map[string]interface{}{
+					"id":                   utils.ID(),
+					"account_id":           shareAccountId,
+					"change_money":         changeMoney,
+					"money":                money,
+					"order_payment_id":     id,
+					"type":                 enum.WALLET_REBATE,
+					"was_share_account_id": accId,
+					"remark":               fmt.Sprintf("邀请会员[%v]获得返利专享！", accId),
+					"ct_time":              utils.CurrentTime(),
+					"ct_ip":                ip,
+				})
+				if err != nil {
+					global.Log.Error(fmt.Sprintf("订单通知，邀请者获得返利时添加钱包日志失败，错误：%s", err.Error()))
+					panic(err)
+				}
+			}
+		}
+
 		flog = true
 		errMsg = "修改订单成功：" + ids
 		global.Log.Info(errMsg)
 	}, func(err error) {
 		if err != nil {
-			global.Log.Error("保存失败，%v", err)
+			global.Log.Error("支付订单通知处理失败，%v", err)
 			flog = false
 		}
 	})
@@ -481,6 +536,33 @@ func getAccountFuncByAccId(accId int64) []map[string]interface{} {
 		return nil
 	}
 	return rows
+}
+
+func getAccountWalletByAccId(accId int64) map[string]interface{} {
+	sql := "SELECT * FROM account_wallet WHERE account_id=?"
+	rows, err := global.DB.Query(sql, accId)
+	if err != nil {
+		global.Log.Error(err.Error())
+		return nil
+	}
+	if len(rows) < 1 {
+		return nil
+	}
+	return rows[0]
+}
+
+//邀请返利记录
+func getShareRebateWalletLog(accId, wasShareAccId int64, t string) map[string]interface{} {
+	sql := "SELECT * FROM account_wallet_log WHERE account_id=? AND was_share_account_id=? AND type=?"
+	rows, err := global.DB.Query(sql, accId, wasShareAccId, t)
+	if err != nil {
+		global.Log.Error(err.Error())
+		return nil
+	}
+	if len(rows) < 1 {
+		return nil
+	}
+	return rows[0]
 }
 
 func getOrderFuncId(orderId int64) []map[string]interface{} {
@@ -539,7 +621,10 @@ func getOrderCode(mt []map[string]interface{}, fc map[string]interface{}, accId 
 	}
 	totalPrice = convert.MustFloat64(fmt.Sprintf("%.0f", totalPrice))
 	//测试使用
-	//totalPrice = 0.01
+	var testFuncChargeId int64 = 7
+	if convert.MustInt64(fc["id"]) == testFuncChargeId {
+		totalPrice = 0.01
+	}
 
 	m["id"] = tradeNo
 	m["account_id"] = accId

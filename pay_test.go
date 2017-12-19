@@ -87,7 +87,6 @@ func TestWeiXinPay(t *testing.T) {
 		println("error：", err.Error())
 	}
 	println("PrepayID：", wd.PrepayID)
-	println("CodeUrl：", wd.CodeUrl)
 
 }
 
@@ -115,13 +114,11 @@ func Sign(args wxpay.Request) (wxpay.Defray, error) {
 		Package:   "prepay_id=" + prepay.PrepayID,
 		NonceStr:  wxpay.GenerateNonceStr(),
 		TimeStamp: strconv.FormatInt(time.Now().Unix(), 10),
-		SignType:  "MD5",
 	}
 	str, err = wxpay.NewTrade().Sign(defray, global.WechatApiKey)
 	if err != nil {
 		return wxpay.Defray{}, err
 	}
-	defray.PaySign = str
 	return defray, nil
 }
 
@@ -245,7 +242,7 @@ func TestAddDay(t *testing.T) {
 }
 
 func TestNofily(t *testing.T) {
-	flog := handler.UpdateOrderFuncStatus(5775462386451456, 0.01)
+	flog := handler.UpdateOrderFuncStatus(6264534032466944, 1440, "127.0.0.1")
 	println(flog)
 }
 
@@ -287,7 +284,8 @@ func TestFor(t *testing.T) {
 }
 
 func TestCreateOrder(t *testing.T) {
-	println(fmt.Sprintf("%.0f", 1.4))
+
+	println(fmt.Sprintf("%.0f", 51.9*0.1))
 }
 
 func createOrder() {
