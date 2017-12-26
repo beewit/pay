@@ -64,6 +64,7 @@ func CreateBatchFuncOrder(c echo.Context) error {
 	funcIdStr := c.FormValue("funcId")
 	fcIdStr := c.FormValue("fcId")
 	pt := c.FormValue("pt")
+	payWalletMoneyStr := c.FormValue("walletMoney")
 	if funcIdStr == "" {
 		return utils.Error(c, "请正确选择开通功能", nil)
 	}
@@ -80,9 +81,21 @@ func CreateBatchFuncOrder(c echo.Context) error {
 		return utils.Error(c, "选择的功能开通方式不存在", nil)
 	}
 	acc := global.ToInterfaceAccount(c.Get("account"))
+	var payWalletMoney float64 = 0
+	if payWalletMoneyStr != "" && utils.IsValidNumber(payWalletMoneyStr) {
+		payWalletMoney = convert.MustFloat64(payWalletMoneyStr)
+		m := getWallet(acc)
+		if m == nil {
+			return utils.ErrorNull(c, "余额支付的金额已超过可用的钱包余额")
+		}
+		walletMoney := convert.MustFloat64(m["money"])
+		if payWalletMoney > walletMoney {
+			return utils.ErrorNull(c, "余额支付的金额已超过可用的钱包余额")
+		}
+	}
 	accID := acc.ID
 	accName := acc.Nickname
-	flog, tradeNo, _, codeUrl, getUrl := getOrderCode(mt, fc, accID, accName, pt, c.RealIP(), true)
+	flog, tradeNo, _, codeUrl, getUrl := getOrderCode(mt, fc, accID, accName, pt, c.RealIP(), payWalletMoney, true)
 	if flog {
 		return utils.Success(c, "创建订单成功", map[string]interface{}{"codeUrl": codeUrl, "getUrl": getUrl, "tradeNo": tradeNo})
 	}
@@ -94,6 +107,7 @@ func CreateFuncOrder(c echo.Context) error {
 	funcIdStr := c.FormValue("funcId")
 	fcIdStr := c.FormValue("fcId")
 	pt := c.FormValue("pt")
+	payWalletMoneyStr := c.FormValue("walletMoney")
 	if funcIdStr == "" || !utils.IsValidNumber(funcIdStr) {
 		return utils.Error(c, "请正确选择开通功能", nil)
 	}
@@ -111,9 +125,21 @@ func CreateFuncOrder(c echo.Context) error {
 		return utils.Error(c, "选择的功能开通方式不存在", nil)
 	}
 	acc := global.ToInterfaceAccount(c.Get("account"))
+	var payWalletMoney float64 = 0
+	if payWalletMoneyStr != "" && utils.IsValidNumber(payWalletMoneyStr) {
+		payWalletMoney = convert.MustFloat64(payWalletMoneyStr)
+		m := getWallet(acc)
+		if m == nil {
+			return utils.ErrorNull(c, "余额支付的金额已超过可用的钱包余额")
+		}
+		walletMoney := convert.MustFloat64(m["money"])
+		if payWalletMoney > walletMoney {
+			return utils.ErrorNull(c, "余额支付的金额已超过可用的钱包余额")
+		}
+	}
 	accID := acc.ID
 	accName := acc.Nickname
-	flog, tradeNo, _, codeUrl, getUrl := getOrderCode(mt, fc, accID, accName, pt, c.RealIP(), true)
+	flog, tradeNo, _, codeUrl, getUrl := getOrderCode(mt, fc, accID, accName, pt, c.RealIP(), payWalletMoney, true)
 	if flog {
 		return utils.Success(c, "创建订单成功", map[string]interface{}{"codeUrl": codeUrl, "getUrl": getUrl, "tradeNo": tradeNo})
 	}
@@ -127,6 +153,7 @@ func CreateAppOrder(c echo.Context) error {
 	funcIdStr := c.FormValue("funcId")
 	fcIdStr := c.FormValue("fcId")
 	pt := c.FormValue("pt")
+	payWalletMoneyStr := c.FormValue("walletMoney")
 	if funcIdStr == "" {
 		return utils.Error(c, "请正确选择开通功能", nil)
 	}
@@ -143,9 +170,21 @@ func CreateAppOrder(c echo.Context) error {
 		return utils.Error(c, "选择的功能开通方式不存在", nil)
 	}
 	acc := global.ToInterfaceAccount(c.Get("account"))
+	var payWalletMoney float64 = 0
+	if payWalletMoneyStr != "" && utils.IsValidNumber(payWalletMoneyStr) {
+		payWalletMoney = convert.MustFloat64(payWalletMoneyStr)
+		m := getWallet(acc)
+		if m == nil {
+			return utils.ErrorNull(c, "余额支付的金额已超过可用的钱包余额")
+		}
+		walletMoney := convert.MustFloat64(m["money"])
+		if payWalletMoney > walletMoney {
+			return utils.ErrorNull(c, "余额支付的金额已超过可用的钱包余额")
+		}
+	}
 	accID := acc.ID
 	accName := acc.Nickname
-	flog, tradeNo, totalPrice, _, _ := getOrderCode(mt, fc, accID, accName, pt, c.RealIP(), false)
+	flog, tradeNo, totalPrice, _, _ := getOrderCode(mt, fc, accID, accName, pt, c.RealIP(), payWalletMoney, false)
 	if flog {
 		if pt == enum.PAY_TYPE_WECHATAPP {
 			defray, err := wxpay.GetAppPayPars(body, subject, convert.ToString(tradeNo), totalPrice)
@@ -179,6 +218,15 @@ func CreateAppOrder(c echo.Context) error {
 		}
 	}
 	return utils.Error(c, "创建订单失败", nil)
+}
+
+func getWallet(acc *global.Account) map[string]interface{} {
+	sql := "SELECT * FROM account_wallet WHERE account_id=? LIMIT 1"
+	rows, _ := global.DB.Query(sql, acc.ID)
+	if rows == nil || len(rows) != 1 {
+		return nil
+	}
+	return rows[0]
 }
 
 func GetFuncAndCharge(c echo.Context) error {
@@ -474,11 +522,21 @@ func UpdateOrderFuncStatus(id int64, price float64, ip string) bool {
 				if accountWallet != nil {
 					money = convert.MustFloat64(accountWallet["money"]) + changeMoney
 				}
-				sql := "REPLACE INTO account_wallet(id,account_id,money,last_time,last_ip)VALUES(?,?,?,?,?)"
-				_, err = tx.Insert(sql, utils.ID(), shareAccountId, money, utils.CurrentTime(), ip)
-				if err != nil {
-					global.Log.Error(fmt.Sprintf("订单通知，邀请者获得返利时修改钱包金额失败，错误：%s", err.Error()))
-					panic(err)
+				wallet := getAccountWalletByAccId(accId)
+				if wallet == nil {
+					sql := "INSERT INTO account_wallet(id,account_id,money,last_time,last_ip)VALUES(?,?,?,?,?)"
+					_, err = tx.Insert(sql, utils.ID(), shareAccountId, money, utils.CurrentTime(), ip)
+					if err != nil {
+						global.Log.Error(fmt.Sprintf("订单通知，邀请者获得返利时修改钱包金额失败，错误：%s", err.Error()))
+						panic(err)
+					}
+				} else {
+					sql := "UPDATE account_wallet SET  money,last_time,last_ip WHERE account_id=?"
+					_, err = tx.Update(sql, money, utils.CurrentTime(), ip, shareAccountId)
+					if err != nil {
+						global.Log.Error(fmt.Sprintf("订单通知，邀请者获得返利时修改钱包金额失败，错误：%s", err.Error()))
+						panic(err)
+					}
 				}
 				_, err = tx.InsertMap("account_wallet_log", map[string]interface{}{
 					"id":                   utils.ID(),
@@ -591,7 +649,7 @@ func getOrderFuncById(id int64) map[string]interface{} {
 	return rows[0]
 }
 
-func getOrderCode(mt []map[string]interface{}, fc map[string]interface{}, accId int64, accName, payType, ip string, isPayQrCode bool) (bool, int64, float64, string,
+func getOrderCode(mt []map[string]interface{}, fc map[string]interface{}, accId int64, accName, payType, ip string, payWalletMoney float64, isPayQrCode bool) (bool, int64, float64, string,
 	string) {
 	m := make(map[string]interface{})
 	tradeNo := utils.ID()
@@ -620,6 +678,10 @@ func getOrderCode(mt []map[string]interface{}, fc map[string]interface{}, accId 
 
 	}
 	totalPrice = convert.MustFloat64(fmt.Sprintf("%.0f", totalPrice))
+	if payWalletMoney > 0 {
+		totalPrice = totalPrice - payWalletMoney
+	}
+
 	//测试使用
 	var testFuncChargeId int64 = 7
 	if convert.MustInt64(fc["id"]) == testFuncChargeId {
@@ -636,6 +698,7 @@ func getOrderCode(mt []map[string]interface{}, fc map[string]interface{}, accId 
 	m["status"] = enum.NORMAL
 	m["ct_time"] = utils.CurrentTime()
 	m["ct_ip"] = ip
+	m["pay_money"] = payWalletMoney
 
 	flog := true
 	global.DB.Tx(func(tx *mysql.SqlConnTransaction) {
@@ -646,6 +709,14 @@ func getOrderCode(mt []map[string]interface{}, fc map[string]interface{}, accId 
 		_, err = tx.InsertMapList("order_payment_record_func", funcList)
 		if err != nil {
 			panic(err)
+		}
+		if payWalletMoney > 0 {
+			//扣除余额
+			_, err = tx.Update("UPDATE account_wallet SET money=money-? WHERE account_id=?", payWalletMoney, accId)
+			if err != nil {
+				global.Log.Error(err.Error())
+				panic(err)
+			}
 		}
 	}, func(err error) {
 		if err != nil {
