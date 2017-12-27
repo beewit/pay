@@ -84,7 +84,7 @@ func CreateBatchFuncOrder(c echo.Context) error {
 	var payWalletMoney float64 = 0
 	if payWalletMoneyStr != "" && utils.IsValidNumber(payWalletMoneyStr) {
 		payWalletMoney = convert.MustFloat64(payWalletMoneyStr)
-		m := getWallet(acc)
+		m := getWallet(acc.ID)
 		if m == nil {
 			return utils.ErrorNull(c, "余额支付的金额已超过可用的钱包余额")
 		}
@@ -128,7 +128,7 @@ func CreateFuncOrder(c echo.Context) error {
 	var payWalletMoney float64 = 0
 	if payWalletMoneyStr != "" && utils.IsValidNumber(payWalletMoneyStr) {
 		payWalletMoney = convert.MustFloat64(payWalletMoneyStr)
-		m := getWallet(acc)
+		m := getWallet(acc.ID)
 		if m == nil {
 			return utils.ErrorNull(c, "余额支付的金额已超过可用的钱包余额")
 		}
@@ -173,7 +173,7 @@ func CreateAppOrder(c echo.Context) error {
 	var payWalletMoney float64 = 0
 	if payWalletMoneyStr != "" && utils.IsValidNumber(payWalletMoneyStr) {
 		payWalletMoney = convert.MustFloat64(payWalletMoneyStr)
-		m := getWallet(acc)
+		m := getWallet(acc.ID)
 		if m == nil {
 			return utils.ErrorNull(c, "余额支付的金额已超过可用的钱包余额")
 		}
@@ -220,13 +220,140 @@ func CreateAppOrder(c echo.Context) error {
 	return utils.Error(c, "创建订单失败", nil)
 }
 
-func getWallet(acc *global.Account) map[string]interface{} {
+func getWallet(accId int64) map[string]interface{} {
 	sql := "SELECT * FROM account_wallet WHERE account_id=? LIMIT 1"
-	rows, _ := global.DB.Query(sql, acc.ID)
+	rows, _ := global.DB.Query(sql, accId)
 	if rows == nil || len(rows) != 1 {
 		return nil
 	}
 	return rows[0]
+}
+
+//订单继续支付
+func OrderPay(c echo.Context) error {
+	acc := global.ToInterfaceAccount(c.Get("account"))
+	orderId := c.FormValue("orderId")
+	body := c.FormValue("body")
+	subject := c.FormValue("subject")
+	if orderId == "" || !utils.IsValidNumber(orderId) {
+		return utils.ErrorNull(c, "订单号无效")
+	}
+	order := getOrderFuncById(convert.MustInt64(orderId))
+	if order == nil {
+		return utils.ErrorNull(c, "订单不存在")
+	}
+	if acc.ID != convert.MustInt64(order["account_id"]) {
+		return utils.ErrorNull(c, "无订单操作权限")
+	}
+	//订单正常并且未支付状态才可取消订单
+	if convert.ToString(order["status"]) != enum.NORMAL && convert.ToString(order["pay_status"]) != enum.PAY_STATUS_NOT {
+		return utils.ErrorNull(c, "订单非有效状态无法继续支付")
+	}
+	payPrice := convert.MustFloat64(order["pay_price"])
+	pt := convert.ToString(order["pay_type"])
+	if pt == enum.PAY_TYPE_WECHATAPP {
+		defray, err := wxpay.GetAppPayPars(body, subject, orderId, payPrice)
+		if err != nil {
+			return utils.Error(c, "创建支付签名失败", nil)
+		}
+		return utils.Success(c, "继续订单支付成功", map[string]interface{}{
+			"tradeNo":    orderId,
+			"totalPrice": payPrice,
+			"sign":       defray.Sign,
+			"appId":      global.WechatAPPAppId,
+			"partnerId":  global.WechatAPPMchID,
+			"prepayId":   defray.PrepayID,
+			"noncestr":   defray.NonceStr,
+			"timeStamp":  defray.TimeStamp})
+	} else if pt == enum.PAY_TYPE_ALIPAY {
+		sign, err := alipay.GetAPPSign(alipay.Request{
+			Body:        body,
+			Subject:     subject,
+			OutTradeNo:  orderId,
+			TotalAmount: payPrice,
+			ProductCode: "QUICK_MSECURITY_PAY",
+			TimeExpress: "1d",
+		})
+		if err != nil {
+			return utils.Error(c, "创建支付签名失败", nil)
+		}
+		return utils.Success(c, "继续订单支付成功", map[string]interface{}{"tradeNo": orderId, "totalPrice": payPrice, "sign": sign})
+	} else {
+		return utils.Error(c, "当前仅支持微信和支付宝支付", nil)
+	}
+}
+
+func CancelOrder(c echo.Context) error {
+	acc := global.ToInterfaceAccount(c.Get("account"))
+	orderId := c.FormValue("orderId")
+	if orderId == "" || !utils.IsValidNumber(orderId) {
+		return utils.ErrorNull(c, "订单号无效")
+	}
+	order := getOrderFuncById(convert.MustInt64(orderId))
+	if order == nil {
+		return utils.ErrorNull(c, "订单不存在")
+	}
+	if acc.ID != convert.MustInt64(order["account_id"]) {
+		return utils.ErrorNull(c, "无订单操作权限")
+	}
+	//订单正常并且未支付状态才可取消订单
+	if convert.ToString(order["status"]) != enum.NORMAL && convert.ToString(order["pay_status"]) != enum.PAY_STATUS_NOT {
+		return utils.ErrorNull(c, "订单不是有效状态或订单不是非支付状态无法取消")
+	}
+	flog := false
+	var err error
+	payMoney := convert.MustFloat64(order["pay_money"])
+	global.DB.Tx(func(tx *mysql.SqlConnTransaction) {
+		//余额支付判断
+		if payMoney > 0 {
+			//需要退换余额
+			wallet := getWallet(acc.ID)
+			if wallet == nil {
+				err = errors.New("账号余额表无记录")
+				panic(err)
+			} else {
+				changeMoney := convert.MustFloat64(wallet["money"]) + payMoney
+				_, err = tx.Update("UPDATE account_wallet SET money=money+? WHERE account_id=?", payMoney, acc.ID)
+				if err != nil {
+					global.Log.Error(err.Error())
+					panic(err)
+				}
+				//添加余额日志记录
+				_, err = tx.InsertMap("account_wallet_log", map[string]interface{}{
+					"id":               utils.ID(),
+					"account_id":       acc.ID,
+					"change_money":     payMoney,
+					"money":            changeMoney,
+					"order_payment_id": orderId,
+					"type":             enum.WALLET_CANCEL_PAY,
+					"remark":           "取消订单返回订单的余额支付金额",
+					"ct_time":          utils.CurrentTime(),
+				})
+				if err != nil {
+					global.Log.Error(err.Error())
+					panic(err)
+				}
+			}
+		}
+		_, err = tx.Update("UPDATE order_payment SET status=? WHERE id=?", enum.CANCEL, orderId)
+		if err != nil {
+			global.Log.Error(err.Error())
+			panic(err)
+		}
+		flog = true
+	}, func(err error) {
+		if err != nil {
+			global.Log.Error("取消订单失败，ERROR：%v", err)
+			flog = false
+		}
+	})
+	if flog {
+		if payMoney > 0 {
+			return utils.SuccessNull(c, fmt.Sprintf("取消订单成功并返回余额 ¥%v", payMoney))
+		}
+		return utils.SuccessNull(c, "取消订单成功")
+	}
+	return utils.ErrorNull(c, "取消订单失败")
 }
 
 func GetFuncAndCharge(c echo.Context) error {
@@ -711,11 +838,39 @@ func getOrderCode(mt []map[string]interface{}, fc map[string]interface{}, accId 
 			panic(err)
 		}
 		if payWalletMoney > 0 {
-			//扣除余额
-			_, err = tx.Update("UPDATE account_wallet SET money=money-? WHERE account_id=?", payWalletMoney, accId)
-			if err != nil {
-				global.Log.Error(err.Error())
+			wallet := getWallet(accId)
+			if wallet == nil {
+				err = errors.New("账号余额表无记录")
 				panic(err)
+			} else {
+				changeMoney := convert.MustFloat64(wallet["money"]) - payWalletMoney
+				if changeMoney < 0 {
+					//余额不足
+					err = errors.New("账号余额不足")
+					panic(err)
+				} else {
+					//扣除余额
+					_, err = tx.Update("UPDATE account_wallet SET money=money-? WHERE account_id=?", payWalletMoney, accId)
+					if err != nil {
+						global.Log.Error(err.Error())
+						panic(err)
+					}
+					//添加余额日志记录
+					_, err = tx.InsertMap("account_wallet_log", map[string]interface{}{
+						"id":               utils.ID(),
+						"account_id":       accId,
+						"change_money":     -payWalletMoney,
+						"money":            changeMoney,
+						"order_payment_id": tradeNo,
+						"type":             enum.WALLET_PAY,
+						"remark":           "余额订单支付",
+						"ct_time":          utils.CurrentTime(),
+					})
+					if err != nil {
+						global.Log.Error(err.Error())
+						panic(err)
+					}
+				}
 			}
 		}
 	}, func(err error) {
