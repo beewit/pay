@@ -1,20 +1,19 @@
 package main
 
 import (
+	"encoding/base64"
 	"encoding/json"
 	"testing"
-	"encoding/base64"
 
+	"encoding/xml"
+	"github.com/beewit/beekit/mysql"
 	"github.com/beewit/beekit/utils"
+	"github.com/beewit/beekit/utils/convert"
 	"github.com/beewit/beekit/utils/uhttp"
 	"github.com/beewit/pay/global"
-	"github.com/beewit/beekit/mysql"
-	"github.com/beewit/beekit/utils/convert"
-	"time"
-	"github.com/beewit/pay/handler"
-	"net/http"
-	"encoding/xml"
 	"github.com/beewit/pay/wxpay"
+	"net/http"
+	"time"
 )
 
 func TestFunc(t *testing.T) {
@@ -134,8 +133,8 @@ func TestConvert(t *testing.T) {
 }
 
 func TestUpdateOrder(t *testing.T) {
-	flog := handler.UpdateOrderFuncStatus(125985189636608000, 0.1,"")
-	println(flog)
+	/* flog := handler.UpdateOrderFuncStatus(125985189636608000, 0.1,"")
+	println(flog) */
 }
 
 func TestTime(t *testing.T) {

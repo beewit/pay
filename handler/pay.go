@@ -22,43 +22,6 @@ import (
 	"github.com/labstack/echo"
 )
 
-func Filter(next echo.HandlerFunc) echo.HandlerFunc {
-	return func(c echo.Context) error {
-		tc, _ := c.Cookie("token")
-		var token string
-		if tc == nil || tc.Value == "" {
-			token = c.FormValue("token")
-		} else {
-			token = tc.Value
-		}
-		if token == "" {
-			return utils.AuthFail(c, "登陆信息token无效，请重新登陆")
-		}
-
-		accMapStr, err := global.RD.GetString(token)
-		if err != nil {
-			return utils.AuthFail(c, "登陆信息已失效，请重新登陆")
-		}
-		accMap := make(map[string]interface{})
-		err = json.Unmarshal([]byte(accMapStr), &accMap)
-		if err != nil {
-			return utils.AuthFail(c, "登陆信息已失效，请重新登陆，ERR："+err.Error())
-		}
-		m, err := global.DB.Query("SELECT id,nickname,photo,mobile,status FROM account WHERE id=? LIMIT 1", accMap["id"])
-		if err != nil {
-			return utils.AuthFail(c, "获取用户信息失败")
-		}
-		if len(m) <= 0 {
-			return utils.AuthFail(c, "用户信息不存在")
-		}
-		if convert.ToString(m[0]["status"]) != enum.NORMAL {
-			return utils.AuthFail(c, "用户已被冻结")
-		}
-		c.Set("account", global.ToMapAccount(m[0]))
-		return next(c)
-	}
-}
-
 //多个功能开通
 func CreateBatchFuncOrder(c echo.Context) error {
 	funcIdStr := c.FormValue("funcId")
@@ -238,7 +201,7 @@ func OrderPay(c echo.Context) error {
 	if orderId == "" || !utils.IsValidNumber(orderId) {
 		return utils.ErrorNull(c, "订单号无效")
 	}
-	order := getOrderFuncById(convert.MustInt64(orderId))
+	order := GetOrder(convert.MustInt64(orderId))
 	if order == nil {
 		return utils.ErrorNull(c, "订单不存在")
 	}
@@ -289,7 +252,7 @@ func CancelOrder(c echo.Context) error {
 	if orderId == "" || !utils.IsValidNumber(orderId) {
 		return utils.ErrorNull(c, "订单号无效")
 	}
-	order := getOrderFuncById(convert.MustInt64(orderId))
+	order := GetOrder(convert.MustInt64(orderId))
 	if order == nil {
 		return utils.ErrorNull(c, "订单不存在")
 	}
@@ -396,7 +359,11 @@ func AlipayNotify(c echo.Context) error {
 		global.Log.Error(err.Error())
 		return c.HTML(http.StatusOK, "error")
 	}
-	UpdateOrderFuncStatus(convert.MustInt64(c.FormValue("out_trade_no")), convert.MustFloat64(c.FormValue("total_amount")), c.RealIP())
+	id := convert.MustInt64(c.FormValue("out_trade_no"))
+	totalMoney := convert.MustFloat64(c.FormValue("total_amount"))
+	ip := c.RealIP()
+	order := GetOrder(id)
+	UpdateOrderFuncStatus(order, totalMoney, ip)
 	return c.HTML(http.StatusOK, "success")
 }
 
@@ -435,7 +402,11 @@ func WechatNotify(c echo.Context) error {
 		}
 		return c.XML(http.StatusOK, wr)
 	}
-	UpdateOrderFuncStatus(convert.MustInt64(args.OutTradeNo), convert.MustFloat64(args.TotalFee)/100, c.RealIP())
+	id := convert.MustInt64(args.OutTradeNo)
+	totalMoney := convert.MustFloat64(args.TotalFee) / 100
+	ip := c.RealIP()
+	order := GetOrder(id)
+	UpdateOrderFuncStatus(order, totalMoney, ip)
 	wr := &wxpay.Response{
 		ReturnCode: "SUCCESS",
 	}
@@ -447,7 +418,7 @@ func GetOrderById(c echo.Context) error {
 	if tradeNo == "" || !utils.IsValidNumber(tradeNo) {
 		return utils.Error(c, "无有效订单", nil)
 	}
-	order := getOrderFuncById(convert.MustInt64(tradeNo))
+	order := GetOrder(convert.MustInt64(tradeNo))
 	if order == nil {
 		return utils.NullData(c)
 	}
@@ -509,38 +480,48 @@ func updateOrderUrl(id int64, codeUrl, getUrl string) int64 {
 	return x
 }
 
-func UpdateOrderFuncStatus(id int64, price float64, ip string) bool {
+func UpdateOrderStatus(order map[string]interface{}, price float64, ip string) bool {
+	id := convert.MustInt64(order["id"])
+	var errMsg string
+	ids := convert.ToString(id)
+	if order == nil {
+		errMsg = "订单不存在：" + ids
+		global.Log.Error(errMsg)
+		return false
+	}
+	if order["pay_status"] == enum.PAY_STATUS_END {
+		errMsg = "订单已支付过了：" + ids
+		global.Log.Error(errMsg)
+		return false
+	}
+	if convert.MustFloat64(order["pay_price"]) != price {
+		errMsg = "订单支付金额不一致"
+		global.Log.Warning(errMsg)
+		return false
+	}
+	switch order["type"] {
+	//功能开通
+	case enum.PAY_TYPE_FUNC:
+		return UpdateOrderFuncStatus(order, price, ip)
+	case enum.PAY_TYPE_RED_PACKET:
+		return UpdateOrderRedPacketStatus(order, price, ip)
+	}
+	global.Log.Error("无此订单开通类型：%v", order["type"])
+	return false
+}
+
+func UpdateOrderFuncStatus(order map[string]interface{}, price float64, ip string) bool {
+	var x int64
+	var err error
+	var errMsg string
 	flog := false
+	id := convert.MustInt64(order["id"])
+	accId, errAccId := convert.ToInt64(order["account_id"])
+	if errAccId != nil {
+		global.Log.Error("%v订单付款的帐号异常：%s", id, errAccId.Error())
+		return false
+	}
 	global.DB.Tx(func(tx *mysql.SqlConnTransaction) {
-		errMsg := ""
-		ids := convert.ToString(id)
-		//查询订单
-		order := getOrderFuncById(id)
-		if order == nil {
-			errMsg := "订单不存在：" + ids
-			global.Log.Error(errMsg)
-			panic(errors.New(errMsg))
-		}
-		if order["pay_status"] == enum.PAY_STATUS_END {
-			errMsg := "订单已支付过了：" + ids
-			global.Log.Error(errMsg)
-			panic(errMsg)
-		}
-		if convert.MustFloat64(order["pay_price"]) != price {
-			errMsg := "订单支付金额不一致"
-			global.Log.Warning(errMsg)
-			panic(errMsg)
-			return
-		}
-		var x int64
-		var err error
-
-		accId, errAccId := convert.ToInt64(order["account_id"])
-		if errAccId != nil {
-			global.Log.Error(ids + "订单付款的帐号异常：" + errAccId.Error())
-			panic(err)
-		}
-
 		sql := "UPDATE order_payment SET pay_status=?,pay_time=?,pay_ip=? WHERE id=?"
 		x, err = tx.Update(sql, enum.PAY_STATUS_END, utils.CurrentTime(), ip, id)
 		if err != nil {
@@ -548,7 +529,7 @@ func UpdateOrderFuncStatus(id int64, price float64, ip string) bool {
 			panic(err)
 		}
 		if x <= 0 {
-			errMsg := "修改订单状态失败：" + ids
+			errMsg := fmt.Sprintf("%v修改订单状态失败：", id)
 			global.Log.Error(errMsg)
 			panic(errors.New(errMsg))
 		}
@@ -566,7 +547,6 @@ func UpdateOrderFuncStatus(id int64, price float64, ip string) bool {
 			if convert.MustInt64(orderFunc[i]["func_charge_id"]) == testFuncChargeId && accId != 122068319091036160 {
 				global.Log.Error("非指定账户不能使用测试功能支付，支付无效")
 				panic(errMsg)
-				return
 			}
 
 			flog := false
@@ -584,7 +564,6 @@ func UpdateOrderFuncStatus(id int64, price float64, ip string) bool {
 						if errExpirTime != nil {
 							global.Log.Error(convert.ToString(accId) + "会员的过期时间错误：" + errExpirTime.Error())
 							panic(err)
-							return
 						}
 						if expirTimeStr.After(time.Now()) {
 							//未到期的续费
@@ -685,7 +664,7 @@ func UpdateOrderFuncStatus(id int64, price float64, ip string) bool {
 		}
 
 		flog = true
-		errMsg = "修改订单成功：" + ids
+		errMsg = fmt.Sprintf("%v修改订单成功", id)
 		global.Log.Info(errMsg)
 	}, func(err error) {
 		if err != nil {
@@ -763,7 +742,7 @@ func getOrderFuncId(orderId int64) []map[string]interface{} {
 	return rows
 }
 
-func getOrderFuncById(id int64) map[string]interface{} {
+func GetOrder(id int64) map[string]interface{} {
 	sql := "SELECT * FROM order_payment o WHERE o.id=? LIMIT 1"
 	rows, err := global.DB.Query(sql, id)
 	if err != nil {

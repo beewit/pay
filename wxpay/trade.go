@@ -8,19 +8,19 @@ import (
 	"net/url"
 	"strings"
 
-	"github.com/beewit/beekit/utils/query"
+	"bytes"
+	"crypto/md5"
+	"github.com/beewit/beekit/utils"
 	"github.com/beewit/beekit/utils/encrypt"
+	"github.com/beewit/beekit/utils/imgbase64"
+	"github.com/beewit/beekit/utils/query"
 	"github.com/beewit/beekit/utils/uhttp"
+	"github.com/beewit/pay/global"
+	"github.com/boombuler/barcode"
+	"github.com/boombuler/barcode/qr"
+	"image/png"
 	"strconv"
 	"time"
-	"crypto/md5"
-	"github.com/beewit/pay/global"
-	"github.com/beewit/beekit/utils"
-	"github.com/boombuler/barcode/qr"
-	"github.com/boombuler/barcode"
-	"image/png"
-	"bytes"
-	"github.com/beewit/beekit/utils/imgbase64"
 )
 
 // Trade trade
@@ -224,6 +224,50 @@ func GetAppPayPars(body, subject, tradeNo string, amount float64) (*Defray, erro
 		TimeStamp: strconv.FormatInt(time.Now().Unix(), 10),
 	}
 	str, err = NewTrade().Sign(defray, global.WechatAPPApiKey)
+	if err != nil {
+		return nil, err
+	}
+	defray.Sign = str
+	return &defray, nil
+}
+
+func GetMiniAppPayPars(body, subject, tradeNo, openid string, amount float64) (*Defray, error) {
+	args := Request{
+		Body:       body,
+		Attach:     subject,
+		OutTradeNo: tradeNo,
+		ProductID:  tradeNo,
+		TotalFee:   (int)(amount * 100),
+	}
+	sign := Sign{
+		AppID:          global.WechatMiniAppConf.AppID,
+		MchID:          global.WechatMchID,
+		NonceStr:       GenerateNonceStr(),
+		TradeType:      "JSAPI",
+		SpbillCreateIP: utils.GetIp(),
+		NotifyURL:      global.WechatNotifyURL,
+		Request:        args,
+		OpenID:         openid,
+	}
+	str, err := NewTrade().Sign(sign, global.WechatApiKey)
+	if err != nil {
+		return nil, err
+	}
+	sign.Sign = str
+	prepay, err := NewTrade().Prepay(sign)
+	if err != nil {
+		return nil, err
+	}
+	//再次生成签名
+	defray := Defray{
+		AppID:     global.WechatMiniAppConf.AppID,
+		PartnerID: global.WechatMchID,
+		PrepayID:  prepay.PrepayID,
+		Package:   "Sign=WXPay",
+		NonceStr:  GenerateNonceStr(),
+		TimeStamp: strconv.FormatInt(time.Now().Unix(), 10),
+	}
+	str, err = NewTrade().Sign(defray, global.WechatApiKey)
 	if err != nil {
 		return nil, err
 	}

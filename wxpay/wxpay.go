@@ -58,13 +58,13 @@ type (
 	// Prepay prepay
 	Prepay struct {
 		Response
-		AppID     string `xml:"appid,omitempty"`      // 是 公众账号ID
-		MchID     string `xml:"mch_id,omitempty"`     // 是 商户号
-		NonceStr  string `xml:"nonce_str,omitempty"`  // 是 随机字符串
-		Sign      string `xml:"sign,omitempty"`       // 是 签名
-		TradeType string `xml:"trade_type,omitempty"` // 是 交易类型
-		PrepayID  string `xml:"prepay_id,omitempty"`  // 是 预支付交易会话标识
-		CodeURL   string `xml:"code_url,omitempty" url:"code_url,omitempty"`   // 否 二维码链接
+		AppID     string `xml:"appid,omitempty"`                             // 是 公众账号ID
+		MchID     string `xml:"mch_id,omitempty"`                            // 是 商户号
+		NonceStr  string `xml:"nonce_str,omitempty"`                         // 是 随机字符串
+		Sign      string `xml:"sign,omitempty"`                              // 是 签名
+		TradeType string `xml:"trade_type,omitempty"`                        // 是 交易类型
+		PrepayID  string `xml:"prepay_id,omitempty"`                         // 是 预支付交易会话标识
+		CodeURL   string `xml:"code_url,omitempty" url:"code_url,omitempty"` // 否 二维码链接
 	}
 
 	// Defray defray

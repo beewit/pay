@@ -4,7 +4,12 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"github.com/labstack/echo"
+	"github.com/stretchr/testify/assert"
 	"image/png"
+	"net/http"
+	"net/http/httptest"
+	"net/url"
 	"os"
 	"strconv"
 	"strings"
@@ -242,8 +247,8 @@ func TestAddDay(t *testing.T) {
 }
 
 func TestNofily(t *testing.T) {
-	flog := handler.UpdateOrderFuncStatus(6264534032466944, 1440, "127.0.0.1")
-	println(flog)
+	/* flog := handler.UpdateOrderFuncStatus(6264534032466944, 1440, "127.0.0.1")
+	println(flog) */
 }
 
 func TestTxInsertMap(t *testing.T) {
@@ -315,4 +320,29 @@ func createOrder() {
 
 		}
 	})
+}
+
+func TestRedPacketPay(t *testing.T) {
+	e := echo.New()
+	f := url.Values{}
+	f.Set("id", "1")
+	f.Set("openId", "oNL8m0T-FAk0NadV4rktzT5G-na4")
+	f.Set("token", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.e30.Jis3756dX_49PhACfn9xl_Fn0MzWJI0Hyewb9my3SxY")
+	req := httptest.NewRequest(echo.POST, "/", strings.NewReader(f.Encode()))
+	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationForm)
+	rec := httptest.NewRecorder()
+	c := e.NewContext(req, rec)
+	m, _ := global.DB.Query("SELECT id,nickname,photo,mobile,status FROM account WHERE id=? LIMIT 1", 122068319091036160)
+	c.Set("account", global.ToMapAccount(m[0]))
+
+	// 断言
+	if assert.NoError(t, handler.RedPacketPay(c)) {
+		assert.Equal(t, http.StatusOK, rec.Code)
+		t.Error(rec.Body.String())
+	}
+}
+
+func TestNotityRedPacketPay(t *testing.T) {
+	order := handler.GetOrder(6426687589467136)
+	handler.UpdateOrderRedPacketStatus(order, 1, "127.0.0.1")
 }

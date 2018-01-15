@@ -38,10 +38,19 @@ var (
 	WechatAPPApiKey    = fmt.Sprintf("%v", CFG.Get("wechatAPP.apiKey"))
 	WechatAPPNotifyURL = fmt.Sprintf("%v", CFG.Get("wechatAPP.notifyURL"))
 
+	WechatMiniAppConf = &wechatMiniAppConf{
+		AppID:     convert.ToString(CFG.Get("wechat_mini_app.appId")),
+		AppSecret: convert.ToString(CFG.Get("wechat_mini_app.appSecret")),
+	}
+
 	FilesPath   = fmt.Sprintf("%v", CFG.Get("files.path"))
 	FilesDoMain = fmt.Sprintf("%v", CFG.Get("files.doMain"))
 )
 
+type wechatMiniAppConf struct {
+	AppID     string
+	AppSecret string
+}
 type Account struct {
 	ID       int64  `json:"id"`
 	Nickname string `json:"nickname"`
