@@ -247,8 +247,9 @@ func TestAddDay(t *testing.T) {
 }
 
 func TestNofily(t *testing.T) {
-	/* flog := handler.UpdateOrderFuncStatus(6264534032466944, 1440, "127.0.0.1")
-	println(flog) */
+	order := handler.GetOrder(6433434672055296)
+	flog := handler.UpdateOrderFuncStatus(order, 10, "101.27.240.120")
+	println(flog)
 }
 
 func TestTxInsertMap(t *testing.T) {
@@ -345,4 +346,12 @@ func TestRedPacketPay(t *testing.T) {
 func TestNotityRedPacketPay(t *testing.T) {
 	order := handler.GetOrder(6426687589467136)
 	handler.UpdateOrderRedPacketStatus(order, 1, "127.0.0.1")
+}
+
+func TestQrcode(t *testing.T) {
+	body, _ := uhttp.Cmd(uhttp.Request{
+		Method: "POST",
+		URL:    fmt.Sprintf("http://m.9ee3.com/account/create/temporary/qrcode?objId=%v&objType=%s", 1, enum.QRCODE_RED_PACKET),
+	})
+	t.Error(string(body))
 }

@@ -363,7 +363,7 @@ func AlipayNotify(c echo.Context) error {
 	totalMoney := convert.MustFloat64(c.FormValue("total_amount"))
 	ip := c.RealIP()
 	order := GetOrder(id)
-	UpdateOrderFuncStatus(order, totalMoney, ip)
+	UpdateOrderStatus(order, totalMoney, ip)
 	return c.HTML(http.StatusOK, "success")
 }
 
@@ -393,7 +393,31 @@ func WechatNotify(c echo.Context) error {
 	//args, _ := c.FormParams()
 	j, _ := json.Marshal(args)
 	global.Log.Info("支付成功的参数：" + string(j[:]))
-	err := wxpay.NewTrade().Verify(args, global.WechatApiKey)
+	id := convert.MustInt64(args.OutTradeNo)
+	if id <= 0 {
+		global.Log.Error("未获取到有效订单")
+		wr := &wxpay.Response{
+			ReturnCode: "ERROR",
+			ReturnMsg:  "未获取到有效订单",
+		}
+		return c.XML(http.StatusOK, wr)
+	}
+	order := GetOrder(id)
+	if order == nil {
+		global.Log.Error("未查询到该订单:%v", id)
+		wr := &wxpay.Response{
+			ReturnCode: "ERROR",
+			ReturnMsg:  fmt.Sprintf("未查询到该订单:%v", id),
+		}
+		return c.XML(http.StatusOK, wr)
+	}
+	var apiKey string
+	if order["pay_type"] == enum.PAY_TYPE_WECHATAPP {
+		apiKey = global.WechatAPPApiKey
+	} else if order["pay_type"] == enum.PAY_TYPE_WECHAT || order["pay_type"] == enum.PAY_TYPE_WECHAT_MINI_APP {
+		apiKey = global.WechatApiKey
+	}
+	err := wxpay.NewTrade().Verify(args, apiKey)
 	if err != nil {
 		global.Log.Error(err.Error())
 		wr := &wxpay.Response{
@@ -402,11 +426,9 @@ func WechatNotify(c echo.Context) error {
 		}
 		return c.XML(http.StatusOK, wr)
 	}
-	id := convert.MustInt64(args.OutTradeNo)
 	totalMoney := convert.MustFloat64(args.TotalFee) / 100
 	ip := c.RealIP()
-	order := GetOrder(id)
-	UpdateOrderFuncStatus(order, totalMoney, ip)
+	UpdateOrderStatus(order, totalMoney, ip)
 	wr := &wxpay.Response{
 		ReturnCode: "SUCCESS",
 	}
@@ -499,6 +521,7 @@ func UpdateOrderStatus(order map[string]interface{}, price float64, ip string) b
 		global.Log.Warning(errMsg)
 		return false
 	}
+	global.Log.Info("订单类型：%v", order["type"])
 	switch order["type"] {
 	//功能开通
 	case enum.PAY_TYPE_FUNC:

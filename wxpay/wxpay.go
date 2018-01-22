@@ -80,6 +80,17 @@ type (
 		Sign      string `json:"sign,omitempty" url:"sign,omitempty"`           // 是 签名 (app)
 		//CodeUrl   string `json:"code_url,omitempty" url:"code_url,omitempty"`   //二维码
 	}
+
+	MiniAppDefray struct {
+		AppID     string `json:"appId,omitempty" url:"appId,omitempty"`         // 是 小程序ID
+		Package   string `json:"package,omitempty" url:"package,omitempty"`     // 是 app:Sign=WXPay,公众号:prepay_id=xxx
+		NonceStr  string `json:"nonceStr,omitempty" url:"nonceStr,omitempty"`   // 是 随机字符串
+		TimeStamp string `json:"timeStamp,omitempty" url:"timeStamp,omitempty"` // 是 时间戳
+		SignType  string `json:"signType,omitempty" url:"signType,omitempty"`   // 是 签名类型（公众号）
+
+		PrepayID string `json:"prepayid,omitempty" url:"prepayid,omitempty"` // 是 预支付ID（app）
+		Sign     string `json:"sign,omitempty" url:"sign,omitempty"`         // 是 签名 (app)
+	}
 	// Notice notice
 	Notice struct {
 		Response

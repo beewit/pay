@@ -16,6 +16,7 @@ func Start() {
 	e := echo.New()
 	e.Static("/app", "app")
 	e.File("/", "app/page/index.html")
+	e.File("/.well-known/pki-validation/fileauth.txt", "app/fileauth.txt")
 	e.File("favicon.ico", "app/static/img/favicon.ico")
 	e.POST("/order/query", handler.GetOrderById, handler.Filter)
 	e.POST("/order/create", handler.CreateFuncOrder, handler.Filter)
@@ -26,6 +27,8 @@ func Start() {
 	e.POST("/member/type", handler.GetFuncAndCharge, handler.Filter)
 	e.POST("/alipay/notify", handler.AlipayNotify)
 	e.POST("/wechat/notify", handler.WechatNotify)
+
+	e.POST("/order/mini/app/redpacket/pay", handler.RedPacketPay, handler.Filter)
 
 	utils.Open(global.Host)
 	port := ":" + convert.ToString(global.Port)

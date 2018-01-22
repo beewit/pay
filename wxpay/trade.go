@@ -4,6 +4,7 @@ import (
 	"encoding/xml"
 	"errors"
 	"fmt"
+	"github.com/beewit/beekit/utils/convert"
 	"net/http"
 	"net/url"
 	"strings"
@@ -231,13 +232,13 @@ func GetAppPayPars(body, subject, tradeNo string, amount float64) (*Defray, erro
 	return &defray, nil
 }
 
-func GetMiniAppPayPars(body, subject, tradeNo, openid string, amount float64) (*Defray, error) {
+func GetMiniAppPayPars(body, subject, tradeNo, openid string, amount float64) (*MiniAppDefray, error) {
 	args := Request{
 		Body:       body,
 		Attach:     subject,
 		OutTradeNo: tradeNo,
 		ProductID:  tradeNo,
-		TotalFee:   (int)(amount * 100),
+		TotalFee:   convert.MustInt(fmt.Sprintf("%.2f", amount*100)),
 	}
 	sign := Sign{
 		AppID:          global.WechatMiniAppConf.AppID,
@@ -259,11 +260,10 @@ func GetMiniAppPayPars(body, subject, tradeNo, openid string, amount float64) (*
 		return nil, err
 	}
 	//再次生成签名
-	defray := Defray{
+	defray := MiniAppDefray{
 		AppID:     global.WechatMiniAppConf.AppID,
-		PartnerID: global.WechatMchID,
-		PrepayID:  prepay.PrepayID,
-		Package:   "Sign=WXPay",
+		Package:   "prepay_id=" + prepay.PrepayID,
+		SignType:  "MD5",
 		NonceStr:  GenerateNonceStr(),
 		TimeStamp: strconv.FormatInt(time.Now().Unix(), 10),
 	}

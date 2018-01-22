@@ -1,18 +1,25 @@
 package handler
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
+	"strings"
+
 	"github.com/beewit/beekit/mysql"
 	"github.com/beewit/beekit/utils"
 	"github.com/beewit/beekit/utils/convert"
 	"github.com/beewit/beekit/utils/enum"
-	"github.com/beewit/beekit/utils/uhttp"
 	"github.com/beewit/pay/global"
 	"github.com/beewit/pay/wxpay"
 	"github.com/labstack/echo"
-	"strings"
 )
+
+type WxSesstion struct {
+	Openid     string `json:"openid"`
+	SessionKey string `json:"session_key"`
+	Unionid    string `json:"unionid"`
+}
 
 func GetRedPacket(id int64) map[string]interface{} {
 	m, err := global.DB.Query("SELECT * FROM account_send_red_packet WHERE status=? AND id=? LIMIT 1", enum.NORMAL, id)
@@ -38,9 +45,18 @@ func RedPacketPay(c echo.Context) error {
 	if id == "" {
 		return utils.ErrorNull(c, "红包id不能为空")
 	}
-	openId := strings.TrimSpace(c.FormValue("openId"))
-	if openId == "" {
-		return utils.ErrorNull(c, "用户openId不能为空")
+	miniAppSessionId := strings.TrimSpace(c.FormValue("miniAppSessionId"))
+	if miniAppSessionId == "" {
+		return utils.ErrorNull(c, "未识别到用户标识")
+	}
+	wsStr, err := global.RD.GetString(miniAppSessionId)
+	if err != nil {
+		return utils.AuthFailNull(c)
+	}
+	var ws *WxSesstion
+	err = json.Unmarshal([]byte(wsStr), &ws)
+	if err != nil {
+		return utils.ErrorNull(c, "获取用户登录标识失败")
 	}
 	if !utils.IsValidNumber(id) {
 		return utils.ErrorNull(c, "红包id格式错误")
@@ -49,7 +65,12 @@ func RedPacketPay(c echo.Context) error {
 	if redPacket == nil {
 		return utils.ErrorNull(c, "红包记录不存在")
 	}
-	totalPrice := convert.MustFloat64(redPacket["money"])
+	if redPacket["pay_status"] == enum.PAY_STATUS_END {
+		return utils.ErrorNull(c, "红包已支付请勿重复付款")
+	}
+	money := convert.MustFloat64(redPacket["money"])
+	feeMoney := convert.MustFloat64(redPacket["fee_money"])
+	totalPrice := money + feeMoney
 	currentTime := utils.CurrentTime()
 	ip := c.RealIP()
 	flog := true
@@ -95,19 +116,17 @@ func RedPacketPay(c echo.Context) error {
 		//支付接口
 		body := "工蜂引流 - 发红包"
 		subject := "工蜂引流 - 发红包"
-		defray, err := wxpay.GetMiniAppPayPars(body, subject, convert.ToString(tradeNo), openId, totalPrice)
+		defray, err := wxpay.GetMiniAppPayPars(body, subject, convert.ToString(tradeNo), ws.Openid, totalPrice)
 		if err != nil {
 			return utils.Error(c, "创建支付签名失败:"+err.Error(), nil)
 		}
 		return utils.Success(c, "创建红包支付订单成功", map[string]interface{}{
-			"tradeNo":    tradeNo,
-			"totalPrice": totalPrice,
-			"sign":       defray.Sign,
-			"appId":      global.WechatMiniAppConf.AppID,
-			"partnerId":  global.WechatMchID,
-			"prepayId":   defray.PrepayID,
-			"noncestr":   defray.NonceStr,
-			"timeStamp":  defray.TimeStamp})
+			"sign":      defray.Sign,
+			"package":   defray.Package,
+			"noncestr":  defray.NonceStr,
+			"timeStamp": defray.TimeStamp,
+			"tradeNo":   tradeNo,
+		})
 	}
 }
 
@@ -136,13 +155,14 @@ func UpdateOrderRedPacketStatus(order map[string]interface{}, price float64, ip 
 			global.Log.Error(errMsg)
 			panic(errors.New(errMsg))
 		}
-		var qrCodePath string
+		//var qrCodePath string
 		var redPacketId int64
 		for i := 0; i < len(recordList); i++ {
-			qrCodePath = ""
+			/* qrCodePath = ""
 			redPacketId = convert.MustInt64(recordList[0]["id"])
+			global.Log.Info("【%v】生成领取红包二维码！", redPacketId)
 			body, err := uhttp.Cmd(uhttp.Request{
-				Method: "GET",
+				Method: "POST",
 				URL:    fmt.Sprintf("http://m.9ee3.com/account/create/temporary/qrcode?objId=%v&objType=%s", redPacketId, enum.QRCODE_RED_PACKET),
 			})
 			if err != nil {
@@ -162,7 +182,23 @@ func UpdateOrderRedPacketStatus(order map[string]interface{}, price float64, ip 
 					global.Log.Error("获取领取红包临时二维码失败，%v", resultParam.Msg)
 				}
 			}
-			x, err = tx.Update("UPDATE account_send_red_packet SET qrcode=?,pay_state=? WHERE id=?", qrCodePath, enum.PAY_STATUS_END, redPacketId)
+			global.Log.Info("【%v结果】生成领取红包二维码：%s", redPacketId, qrCodePath)
+			if qrCodePath != "" {
+				x, err = tx.Update("UPDATE account_send_red_packet SET qrcode=?,qrcode_time=?,pay_state=? WHERE id=?", qrCodePath,
+					utils.FormatTime(time.Now().Add(-time.Hour)), enum.PAY_STATUS_END, redPacketId)
+				if err != nil {
+					global.Log.Error(err.Error())
+					panic(err)
+				}
+				if x <= 0 {
+					errMsg = fmt.Sprintf("%v修改红包二维码失败", redPacketId)
+					global.Log.Error(errMsg)
+					panic(errors.New(errMsg))
+				}
+			} */
+
+			redPacketId = convert.MustInt64(recordList[0]["id"])
+			x, err = tx.Update("UPDATE account_send_red_packet SET pay_state=? WHERE id=?", enum.PAY_STATUS_END, redPacketId)
 			if err != nil {
 				global.Log.Error(err.Error())
 				panic(err)
