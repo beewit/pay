@@ -14,6 +14,7 @@ import (
 	"github.com/beewit/pay/wxpay"
 	"net/http"
 	"time"
+	"fmt"
 )
 
 func TestFunc(t *testing.T) {
@@ -193,4 +194,8 @@ func TestInserMapList(t *testing.T) {
 		println(err.Error())
 	}
 	println(x)
+}
+
+func TestFloats(t *testing.T) {
+	println(convert.MustInt(fmt.Sprintf("%.2f", 0.01*100)))
 }

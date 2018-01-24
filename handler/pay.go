@@ -176,6 +176,22 @@ func CreateAppOrder(c echo.Context) error {
 				return utils.Error(c, "创建支付签名失败", nil)
 			}
 			return utils.Success(c, "创建订单成功", map[string]interface{}{"tradeNo": tradeNo, "totalPrice": totalPrice, "sign": sign})
+		} else if pt == enum.PAY_TYPE_WECHAT_MINI_APP {
+			ws, err := GetMiniAppSession(c)
+			if err != nil {
+				return utils.AuthFailNull(c)
+			}
+			defray, err := wxpay.GetMiniAppPayPars(body, subject, convert.ToString(tradeNo), ws.Openid, totalPrice)
+			if err != nil {
+				return utils.Error(c, "创建支付签名失败:"+err.Error(), nil)
+			}
+			return utils.Success(c, "创建支付订单成功", map[string]interface{}{
+				"sign":      defray.Sign,
+				"package":   defray.Package,
+				"noncestr":  defray.NonceStr,
+				"timeStamp": defray.TimeStamp,
+				"tradeNo":   tradeNo,
+			})
 		} else {
 			return utils.Error(c, "当前仅支持微信和支付宝支付", nil)
 		}
@@ -241,6 +257,22 @@ func OrderPay(c echo.Context) error {
 			return utils.Error(c, "创建支付签名失败", nil)
 		}
 		return utils.Success(c, "继续订单支付成功", map[string]interface{}{"tradeNo": orderId, "totalPrice": payPrice, "sign": sign})
+	} else if pt == enum.PAY_TYPE_WECHAT_MINI_APP {
+		ws, err := GetMiniAppSession(c)
+		if err != nil {
+			return utils.AuthFailNull(c)
+		}
+		defray, err := wxpay.GetMiniAppPayPars(body, subject, orderId, ws.Openid, payPrice)
+		if err != nil {
+			return utils.Error(c, "创建支付签名失败:"+err.Error(), nil)
+		}
+		return utils.Success(c, "继续订单支付成功", map[string]interface{}{
+			"sign":      defray.Sign,
+			"package":   defray.Package,
+			"noncestr":  defray.NonceStr,
+			"timeStamp": defray.TimeStamp,
+			"tradeNo":   orderId,
+		})
 	} else {
 		return utils.Error(c, "当前仅支持微信和支付宝支付", nil)
 	}
@@ -645,7 +677,7 @@ func UpdateOrderFuncStatus(order map[string]interface{}, price float64, ip strin
 			}
 			if shareAccount != nil && shareRebateWalletLog == nil {
 				//邀请返利，暂定百分之五
-				changeMoney := convert.MustFloat64(fmt.Sprintf("%.0f", price*0.05))
+				changeMoney := convert.MustFloat64(fmt.Sprintf("%.2f", price*0.05))
 				accountWallet := getAccountWalletByAccId(shareAccountId)
 				var money = changeMoney
 				if accountWallet != nil {
@@ -806,7 +838,7 @@ func getOrderCode(mt []map[string]interface{}, fc map[string]interface{}, accId 
 		totalPrice = totalPrice * discount
 
 	}
-	totalPrice = convert.MustFloat64(fmt.Sprintf("%.0f", totalPrice))
+	totalPrice = convert.MustFloat64(fmt.Sprintf("%.2f", totalPrice))
 	if payWalletMoney > 0 {
 		totalPrice = totalPrice - payWalletMoney
 	}

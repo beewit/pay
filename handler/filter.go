@@ -7,6 +7,8 @@ import (
 	"github.com/beewit/beekit/utils/enum"
 	"github.com/beewit/hive/global"
 	"github.com/labstack/echo"
+	"strings"
+	"errors"
 )
 
 func Filter(next echo.HandlerFunc) echo.HandlerFunc {
@@ -58,4 +60,22 @@ func GetAccount(c echo.Context) (acc *global.Account, err error) {
 		return
 	}
 	return
+}
+
+
+func GetMiniAppSession(c echo.Context) (*WxSesstion, error) {
+	miniAppSessionId := strings.TrimSpace(c.FormValue("miniAppSessionId"))
+	if miniAppSessionId == "" {
+		return nil, errors.New("未识别到用户标识")
+	}
+	wsStr, err := global.RD.GetString(miniAppSessionId)
+	if err != nil {
+		return nil, errors.New("未识别到用户标识")
+	}
+	var ws *WxSesstion
+	err = json.Unmarshal([]byte(wsStr), &ws)
+	if err != nil {
+		return nil, errors.New("获取用户登录标识失败")
+	}
+	return ws, nil
 }

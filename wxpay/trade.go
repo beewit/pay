@@ -195,7 +195,7 @@ func GetAppPayPars(body, subject, tradeNo string, amount float64) (*Defray, erro
 		Attach:     subject,
 		OutTradeNo: tradeNo,
 		ProductID:  tradeNo,
-		TotalFee:   (int)(amount * 100),
+		TotalFee:   convert.MustInt(fmt.Sprintf("%.2f", amount*100)),
 	}
 	sign := Sign{
 		AppID:          global.WechatAPPAppId,
@@ -281,7 +281,7 @@ func GetPayUrl(body, subject, tradeNo string, amount float64) (string, error) {
 		Attach:     subject,
 		OutTradeNo: tradeNo,
 		ProductID:  tradeNo,
-		TotalFee:   (int)(amount * 100),
+		TotalFee:  convert.MustInt(fmt.Sprintf("%.2f", amount*100)),
 	}
 	codeUrl, err := GetCodeUrl(r)
 	if err != nil {
