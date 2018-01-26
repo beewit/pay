@@ -356,6 +356,15 @@ func GetFuncAndCharge(c echo.Context) error {
 	if fid == "" {
 		return utils.ErrorNull(c, "请选择开通功能")
 	}
+	t := c.FormValue("type")
+	switch t {
+	case convert.ToString(enum.FUNC_CHARGE_1):
+	case convert.ToString(enum.FUNC_CHARGE_2):
+		break
+	default:
+		t = "0"
+		break;
+	}
 	m := make(map[string]interface{})
 	m["account"] = global.ToInterfaceAccount(c.Get("account"))
 	sql := fmt.Sprintf("SELECT * FROM func WHERE status=? AND id in(%s) ORDER BY `order` DESC,ct_time DESC", fid)
@@ -369,8 +378,8 @@ func GetFuncAndCharge(c echo.Context) error {
 	}
 	mt := rows
 	m["func"] = mt
-	sql = "SELECT * FROM func_charge WHERE status=? ORDER BY `order` DESC,ct_time DESC"
-	rows2, err2 := global.DB.Query(sql, enum.NORMAL)
+	sql = "SELECT * FROM func_charge WHERE status=? AND type=? ORDER BY `order` DESC,ct_time DESC"
+	rows2, err2 := global.DB.Query(sql, enum.NORMAL, t)
 	if err2 != nil {
 		global.Log.Error(err2.Error())
 		return utils.Error(c, "获取功能开通异常", nil)
