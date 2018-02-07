@@ -275,6 +275,52 @@ func GetMiniAppPayPars(body, subject, tradeNo, openid string, amount float64) (*
 	return &defray, nil
 }
 
+
+func GetMPPayPars(body, subject, tradeNo, openid string, amount float64) (*MPDefray, error) {
+	args := Request{
+		Body:       body,
+		Attach:     subject,
+		OutTradeNo: tradeNo,
+		ProductID:  tradeNo,
+		TotalFee:   convert.MustInt(fmt.Sprintf("%.2f", amount*100)),
+	}
+	sign := Sign{
+		AppID:          global.WechatAppId,
+		MchID:          global.WechatMchID,
+		NonceStr:       GenerateNonceStr(),
+		TradeType:      "JSAPI",
+		SpbillCreateIP: utils.GetIp(),
+		NotifyURL:      global.WechatNotifyURL,
+		Request:        args,
+		OpenID:         openid,
+	}
+	str, err := NewTrade().Sign(sign, global.WechatApiKey)
+	if err != nil {
+		return nil, err
+	}
+	sign.Sign = str
+	prepay, err := NewTrade().Prepay(sign)
+	if err != nil {
+		return nil, err
+	}
+	//再次生成签名
+	defray := MPDefray{
+		AppID:     global.WechatAppId,
+		Package:   "prepay_id=" + prepay.PrepayID,
+		SignType:  "MD5",
+		NonceStr:  GenerateNonceStr(),
+		TimeStamp: strconv.FormatInt(time.Now().Unix(), 10),
+	}
+	str, err = NewTrade().Sign(defray, global.WechatApiKey)
+	if err != nil {
+		return nil, err
+	}
+	defray.PaySign = str
+	return &defray, nil
+}
+
+
+
 func GetPayUrl(body, subject, tradeNo string, amount float64) (string, error) {
 	r := Request{
 		Body:       body,

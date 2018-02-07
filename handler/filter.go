@@ -8,8 +8,14 @@ import (
 	"github.com/beewit/hive/global"
 	"github.com/labstack/echo"
 	"strings"
+	//"errors"
+	//"github.com/beewit/wechat/mp"
+	"github.com/beewit/wechat/mp/user/oauth2"
+	"github.com/beewit/wechat/mp"
 	"errors"
 )
+
+var MPSessionId string = "mpSessionId"
 
 func Filter(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
@@ -62,20 +68,44 @@ func GetAccount(c echo.Context) (acc *global.Account, err error) {
 	return
 }
 
-
-func GetMiniAppSession(c echo.Context) (*WxSesstion, error) {
+func GetMiniAppSession(c echo.Context) (*mp.WxSesstion, error) {
 	miniAppSessionId := strings.TrimSpace(c.FormValue("miniAppSessionId"))
-	if miniAppSessionId == "" {
+	mpSessionId := strings.TrimSpace(c.FormValue("mpSessionId"))
+	if miniAppSessionId == "" && mpSessionId == "" {
 		return nil, errors.New("未识别到用户标识")
 	}
-	wsStr, err := global.RD.GetString(miniAppSessionId)
+	var wsStr string
+	var err error
+	if miniAppSessionId != "" {
+		wsStr, err = global.RD.GetString(miniAppSessionId)
+	} else {
+		wsStr, err = global.RD.GetString(mpSessionId)
+	}
 	if err != nil {
 		return nil, errors.New("未识别到用户标识")
 	}
-	var ws *WxSesstion
+	var ws *mp.WxSesstion
 	err = json.Unmarshal([]byte(wsStr), &ws)
 	if err != nil {
 		return nil, errors.New("获取用户登录标识失败")
 	}
 	return ws, nil
+}
+
+
+func GetOauthUser(c echo.Context) *oauth2.UserInfo {
+	mpSessionId := strings.TrimSpace(c.FormValue(MPSessionId))
+	if mpSessionId == "" {
+		return nil
+	}
+	us, err := global.RD.GetString(mpSessionId)
+	if err != nil {
+		return nil
+	}
+	var u *oauth2.UserInfo
+	err = json.Unmarshal([]byte(us), &u)
+	if err != nil {
+		return nil
+	}
+	return u
 }

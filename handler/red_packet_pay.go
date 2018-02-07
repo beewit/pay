@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"encoding/json"
 	"errors"
 	"fmt"
 	"strings"
@@ -14,12 +13,6 @@ import (
 	"github.com/beewit/pay/wxpay"
 	"github.com/labstack/echo"
 )
-
-type WxSesstion struct {
-	Openid     string `json:"openid"`
-	SessionKey string `json:"session_key"`
-	Unionid    string `json:"unionid"`
-}
 
 func GetRedPacket(id int64) map[string]interface{} {
 	m, err := global.DB.Query("SELECT * FROM account_send_red_packet WHERE status=? AND id=? LIMIT 1", enum.NORMAL, id)
@@ -45,18 +38,19 @@ func RedPacketPay(c echo.Context) error {
 	if id == "" {
 		return utils.ErrorNull(c, "红包id不能为空")
 	}
-	miniAppSessionId := strings.TrimSpace(c.FormValue("miniAppSessionId"))
-	if miniAppSessionId == "" {
-		return utils.ErrorNull(c, "未识别到用户标识")
+	t := strings.TrimSpace(c.FormValue("type"))
+	switch  t {
+	case "":
+		t = enum.PAY_TYPE_WECHAT_MINI_APP
+		break
+	case enum.PAY_TYPE_WECHAT_H5:
+		break
+	default:
+		return utils.ErrorNull(c, "无有效支付类型")
 	}
-	wsStr, err := global.RD.GetString(miniAppSessionId)
-	if err != nil {
-		return utils.AuthFailNull(c)
-	}
-	var ws *WxSesstion
-	err = json.Unmarshal([]byte(wsStr), &ws)
-	if err != nil {
-		return utils.ErrorNull(c, "获取用户登录标识失败")
+	ws := GetOauthUser(c)
+	if ws == nil {
+		return utils.AuthWechatFailNull(c)
 	}
 	if !utils.IsValidNumber(id) {
 		return utils.ErrorNull(c, "红包id格式错误")
@@ -98,7 +92,7 @@ func RedPacketPay(c echo.Context) error {
 			"id":                         utils.ID(),
 			"order_payment_id":           tradeNo,
 			"account_send_red_packet_id": id,
-			"price": totalPrice,
+			"price":                      totalPrice,
 		}
 		_, err = tx.InsertMap("order_payment_record_red_packet", orderRecord)
 		if err != nil {
@@ -116,17 +110,34 @@ func RedPacketPay(c echo.Context) error {
 		//支付接口
 		body := "工蜂引流 - 发红包"
 		subject := "工蜂引流 - 发红包"
-		defray, err := wxpay.GetMiniAppPayPars(body, subject, convert.ToString(tradeNo), ws.Openid, totalPrice)
-		if err != nil {
-			return utils.Error(c, "创建支付签名失败:"+err.Error(), nil)
+		switch t {
+		case enum.PAY_TYPE_WECHAT_MINI_APP:
+			defray, err := wxpay.GetMiniAppPayPars(body, subject, convert.ToString(tradeNo), ws.OpenId, totalPrice)
+			if err != nil {
+				return utils.Error(c, "创建支付签名失败:"+err.Error(), nil)
+			}
+			return utils.Success(c, "创建红包支付订单成功", map[string]interface{}{
+				"sign":      defray.Sign,
+				"package":   defray.Package,
+				"noncestr":  defray.NonceStr,
+				"timeStamp": defray.TimeStamp,
+				"tradeNo":   tradeNo,
+			})
+		case enum.PAY_TYPE_WECHAT_H5:
+			defray, err := wxpay.GetMPPayPars(body, subject, convert.ToString(tradeNo), ws.OpenId, totalPrice)
+			if err != nil {
+				return utils.Error(c, "创建支付签名失败:"+err.Error(), nil)
+			}
+			return utils.Success(c, "创建红包支付订单成功", map[string]interface{}{
+				"sign":      defray.PaySign,
+				"package":   defray.Package,
+				"noncestr":  defray.NonceStr,
+				"timeStamp": defray.TimeStamp,
+				"tradeNo":   tradeNo,
+			})
+		default:
+			return utils.ErrorNull(c, "无有效支付类型")
 		}
-		return utils.Success(c, "创建红包支付订单成功", map[string]interface{}{
-			"sign":      defray.Sign,
-			"package":   defray.Package,
-			"noncestr":  defray.NonceStr,
-			"timeStamp": defray.TimeStamp,
-			"tradeNo":   tradeNo,
-		})
 	}
 }
 

@@ -192,6 +192,22 @@ func CreateAppOrder(c echo.Context) error {
 				"timeStamp": defray.TimeStamp,
 				"tradeNo":   tradeNo,
 			})
+		} else if pt == enum.PAY_TYPE_WECHAT_H5 {
+			u := GetOauthUser(c)
+			if u == nil {
+				return utils.AuthWechatFailNull(c)
+			}
+			defray, err := wxpay.GetMPPayPars(body, subject, convert.ToString(tradeNo), u.OpenId, totalPrice)
+			if err != nil {
+				return utils.Error(c, "创建支付签名失败:"+err.Error(), nil)
+			}
+			return utils.Success(c, "创建红包支付订单成功", map[string]interface{}{
+				"sign":      defray.PaySign,
+				"package":   defray.Package,
+				"noncestr":  defray.NonceStr,
+				"timeStamp": defray.TimeStamp,
+				"tradeNo":   tradeNo,
+			})
 		} else {
 			return utils.Error(c, "当前仅支持微信和支付宝支付", nil)
 		}
@@ -268,6 +284,22 @@ func OrderPay(c echo.Context) error {
 		}
 		return utils.Success(c, "继续订单支付成功", map[string]interface{}{
 			"sign":      defray.Sign,
+			"package":   defray.Package,
+			"noncestr":  defray.NonceStr,
+			"timeStamp": defray.TimeStamp,
+			"tradeNo":   orderId,
+		})
+	} else if pt == enum.PAY_TYPE_WECHAT_H5 {
+		u := GetOauthUser(c)
+		if u == nil {
+			return utils.AuthWechatFailNull(c)
+		}
+		defray, err := wxpay.GetMPPayPars(body, subject, orderId, u.OpenId, payPrice)
+		if err != nil {
+			return utils.Error(c, "创建支付签名失败:"+err.Error(), nil)
+		}
+		return utils.Success(c, "创建红包支付订单成功", map[string]interface{}{
+			"sign":      defray.PaySign,
 			"package":   defray.Package,
 			"noncestr":  defray.NonceStr,
 			"timeStamp": defray.TimeStamp,
@@ -455,7 +487,7 @@ func WechatNotify(c echo.Context) error {
 	var apiKey string
 	if order["pay_type"] == enum.PAY_TYPE_WECHATAPP {
 		apiKey = global.WechatAPPApiKey
-	} else if order["pay_type"] == enum.PAY_TYPE_WECHAT || order["pay_type"] == enum.PAY_TYPE_WECHAT_MINI_APP {
+	} else if order["pay_type"] == enum.PAY_TYPE_WECHAT || order["pay_type"] == enum.PAY_TYPE_WECHAT_MINI_APP || order["pay_type"] == enum.PAY_TYPE_WECHAT_H5 {
 		apiKey = global.WechatApiKey
 	}
 	err := wxpay.NewTrade().Verify(args, apiKey)
