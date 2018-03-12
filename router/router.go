@@ -25,6 +25,7 @@ func Start() {
 	e.POST("/order/app/cancel", handler.CancelOrder, handler.Filter)
 	e.POST("/order/app/order/pay", handler.OrderPay, handler.Filter)
 	e.POST("/member/type", handler.GetFuncAndCharge, handler.Filter)
+	e.POST("/member/type2", handler.GetFuncAndCharge)
 	e.POST("/alipay/notify", handler.AlipayNotify)
 	e.POST("/wechat/notify", handler.WechatNotify)
 

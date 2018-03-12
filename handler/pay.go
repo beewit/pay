@@ -395,7 +395,7 @@ func GetFuncAndCharge(c echo.Context) error {
 		break
 	default:
 		t = "0"
-		break;
+		break
 	}
 	m := make(map[string]interface{})
 	m["account"] = global.ToInterfaceAccount(c.Get("account"))
@@ -733,7 +733,7 @@ func UpdateOrderFuncStatus(order map[string]interface{}, price float64, ip strin
 						panic(err)
 					}
 				} else {
-					sql := "UPDATE account_wallet SET  money,last_time,last_ip WHERE account_id=?"
+					sql := "UPDATE account_wallet SET money=?,last_time=?,last_ip=? WHERE account_id=?"
 					_, err = tx.Update(sql, money, utils.CurrentTime(), ip, shareAccountId)
 					if err != nil {
 						global.Log.Error(fmt.Sprintf("订单通知，邀请者获得返利时修改钱包金额失败，错误：%s", err.Error()))
