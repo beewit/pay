@@ -64,7 +64,7 @@ func RedPacketPay(c echo.Context) error {
 	}
 	money := convert.MustFloat64(redPacket["money"])
 	feeMoney := convert.MustFloat64(redPacket["fee_money"])
-	totalPrice := money + feeMoney
+	totalPrice := convert.MustFloat64(fmt.Sprintf("%.2f", money+feeMoney))
 	currentTime := utils.CurrentTime()
 	ip := c.RealIP()
 	flog := true
